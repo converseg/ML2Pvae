@@ -1,0 +1,92 @@
+---
+title: "ML2P-VAE"
+author: "Geoffrey Converse"
+header-includes:
+   - \usepackage{amsmath, amsfonts, amssymb, amsthm, mathtools, graphicx, multicol, float}
+output: rmarkdown::pdf_document
+vignette: >
+  %\VignetteIndexEntry{ml2p_vae_vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup}
+library(ML2Pvae)
+```
+\def \R{\ensuremath \mathbb{R}}
+\def \e{\ensuremath \varepsilon}
+\def \d{\ensuremath \delta}
+
+## Introduction
+Overview of everything.
+
+
+## Multidimensional Logistic 2-Parameter (ML2P) Model
+In Item Response Theory, the goal is often to quantify the relation between the underlying ability (or abilities) of students and their performance on an assessment. Formally, we assume that every student $j$ posesses some latent ability value $\Theta_j$, which is not directly observable. Often, we assume that $\Theta_j$ is distributed normally across the population of $N$ students. In a practical setting, our data for each student may be a binary vector $u_j \in \R^n$ where a 1 (resp. 0) corresponds to a correct (resp. incorrect) answer, to an exam consisting of $n$ questions (items). Given a student $j$'s assessment results, how can we infer the latent value $\Theta_j$?
+
+A naive approach is to simply use the raw exam score, or accuracy. But if two students both score 80\% on an exam while missing different items (so $u_1 - u_2 \not= 0_n$), it is unlikely that they have the exact same ability value. Not all exam items are equal - they often vary in difficulty and in the skills required to answer them correctly.
+
+Instead, theory has been developed \cite{thissen} that states that the probability of student $j$ answering item $i$ correctly is a function of $\Theta_j$, along with parameters $\Lambda_i$ associated with item $i$:
+\[P(u_{ij} = 1 | \Theta_j) = f(\Theta_j; \Lambda_i)\]
+In this work, we are concerned with the case where $\Theta_j = (\theta_{j1}, ..., \theta_{jK})^T \in \R^K$, so that an exam is designed to assess multiple skills. For example, an elementary math exam may test the abilities "add," "subtract," "multiply," and "divide." In order to keep track of which items asses which abilities, we can develop a binary matrix $Q \in \R^{K \times n}$ where
+\[Q_{ki} = \begin{cases}
+    1 & \text{if item } i \text{ requires skill } k \\ 
+    0 & \text{otherwise} 
+    \end{cases}\]
+It is important to note that multiple items can require multiple skills.
+
+The model that this package focuses on is the Multidimensional Logistic 2-Parameter (ML2P) model. The probability of a correct response is given by
+\[P(u_{ij}=1 | \Theta_j) = \frac{1}{1 + \exp[-\vec a_i^T\Theta_j + b_i]} = \frac{1}{1 + \exp[-\sum_{k=1}^K a_{ik}\theta_{jk} + b_i]}\]
+where the discrimination parameters $\vec a_i^T = (a_{ik})_{1\leq k\leq K}$ determine \textit{how much} of skill $k$ is required to answer item $i$ correctly, and the difficulty parameter $b_i$ quantifies the difficulty of item $i$.
+
+In application, we often only have response vectors for a set of students - so we need to estimate the ability parameters $\Theta_j$ for each student, along with the discrimination and difficulty parameters for each item. While there are many parameter estimation methods, including the Expectation-Maximization algorithm and various MCMC methods, many of them become infeasible as the number of latent traits increases beyond $\dim(\Theta_j) = 7$.
+
+## Variational Autoencoders
+How a VAE works.
+
+
+## ML2P-VAE 
+Basic model description
+
+
+## List of package functions
+<!-- 
+Functions the user will realistically use:
+```{r}
+build_vae_standard_normal
+build_vae_normal_full_covariance
+```
+Functions that are a little more backend
+```{r}
+build_hidden_encoder
+sampling_standard_normal
+sampling_normal_full_covariance
+q_constraint
+vae_loss_standard_normal
+vae_loss_normal_full_covariance
+```
+-->
+
+## Proof of implementation of full covariance
+Show why my shit works 
+Note that typical LaTeX equations work $GG^T = \Sigma$
+\[y = 2x^2\]
+\begin{align*}
+y&=x \\
+&\leq x
+\end{align*}
+
+## Code Examples of how to use the package
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+\begin{thebibliography}{2}
+
+\bibitem{thissen} Wainer and Thissen, D. ``Test Scoring''. Erlbaum Associates, Publishers, 2001.
+
+\end{thebibliography}
+

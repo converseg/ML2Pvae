@@ -14,3 +14,7 @@ Imports:
     tensorflow,
     keras
 RoxygenNote: 6.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
