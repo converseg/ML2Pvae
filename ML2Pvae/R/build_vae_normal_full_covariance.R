@@ -27,8 +27,8 @@ build_vae_normal_full_covariance <- function(num_items,
                                              hid_enc_activations = rep('sigmoid', length(enc_hid_arch)),
                                              kl_weight = 1){
   det_skill_cov <- tensorflow::tf$constant(det(covariance_matrix), dtype = 'float32')
-  inv_skill_cov <- tensorflow::tf$constant(solve(covariance_matrix), dtype = 'float32')
-  skill_mean <- tensorflow::tf$constant(mean_vector, shape = c(1,3), dtype = 'float32')
+  inv_skill_cov <- tensorflow::tf$constant(solve(covariance_matrix), dtype = 'float32') #add try-catch for non invertible/posdef covariance
+  skill_mean <- tensorflow::tf$constant(mean_vector, shape = c(1, num_skills), dtype = 'float32')
 
   encoder_layers <- build_hidden_encoder(num_items, enc_hid_arch, hid_enc_activations)
   input <- encoder_layers[[1]]

@@ -19,7 +19,8 @@ sampling_standard_normal <- function(arg){
 sampling_normal_full_covariance <- function(arg){
   num_skills <- -1.5 + sqrt(2 * keras::k_int_shape(arg)[[2]] + 9/4)
   z_mean <- arg[, 1:(num_skills)]
-  z_log_cholesky <- tensorflow::tf$contrib$distributions$fill_triangular(arg[, (num_skills + 1):(keras::k_int_shape(arg)[[2]])])
+  z_log_cholesky <- tensorflow::tf$contrib$distributions$fill_triangular(
+    arg[, (num_skills + 1):(keras::k_int_shape(arg)[[2]])])
   z_cholesky <- tensorflow::tf$linalg$expm(z_log_cholesky) #this should be nonsingular and lower triangular (possible floating point errors)
   b_size <- keras::k_int_shape(z_mean)[[1]]
   eps <- keras::k_random_normal(
