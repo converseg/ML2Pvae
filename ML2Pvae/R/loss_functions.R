@@ -44,8 +44,7 @@ vae_loss_normal_full_covariance <- function(z_mean,
   kl_loss <- 0.5 * (tensorflow::tf$linalg$trace(tensorflow::tf$transpose(keras::k_dot(inv_skill_cov, z_cov_matrix), c(1L,0L,2L))) +
                       keras::k_reshape(tensorflow::tf$matmul(temp, diff), c(-1)) -
                       tensorflow::tf$constant(num_skills, dtype = 'float32') +
-                      log(det_skill_cov / tensorflow::tf$linalg$det(z_cov_matrix))) #TODO: Change determinant to (product of chol diagonal)^2
-  #use k_mean, k_sum, or neither?
+                      log(det_skill_cov / (prod(diag(z_cholesky)))^2)) tensorflow::tf$linalg$det(z_cov_matrix))) #use k_mean, k_sum, or neither?
   loss <- function(input, output){
     rec_loss <- rec_dim * keras::loss_binary_crossentropy(input, output)
     keras::k_mean(kl_weight * kl_loss + rec_loss)
