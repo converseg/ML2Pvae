@@ -20,9 +20,7 @@ vae_loss_normal_full_covariance(z_mean, z_log_cholesky, inv_skill_cov,
 
 \item{kl_weight}{weight for the KL divergence term}
 
-\item{rec_dim}{the number of nodes in the input/output of the VAE
-
-TODO: change tf$linalg$det() to product of diagonal}
+\item{rec_dim}{the number of nodes in the input/output of the VAE}
 }
 \description{
 A custom loss function for a VAE learning a multivariate normal distribution with a full covariance matrix
