@@ -33,7 +33,7 @@ sampling_normal_full_covariance <- function(arg){
 #' A custom kernel constraint function that restricts weights between the learned distribution and output. Nonzero weights are determined by the Q matrix
 #'
 #' @param Q a binary matrixof size \code{num_skills} by \code{num_items}
-q_constraint <- function(Q){
+q_constraint <- function(Q){ #note - might be able to use custom layer class to implement this instead
   constraint <- function(w){
     target <- w * Q
     diff = w - target

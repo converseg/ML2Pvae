@@ -49,10 +49,6 @@ build_vae_normal_full_covariance <- function(num_items,
   output <- decoder(encoder(input)[3])
 
   vae <- keras::keras_model(input, output)
-  # test_mat <- tensorflow::tf$contrib$distributions$fill_triangular(z_log_cholesky)
-  # print(test_mat)
-  # test_exp <- tensorflow::tf$linalg$expm(test_mat)
-  # print(test_mat)
   vae_loss <- vae_loss_normal_full_covariance(z_mean,
                                              tensorflow::tf$contrib$distributions$fill_triangular(z_log_cholesky),
                                              inv_skill_cov,
@@ -60,9 +56,8 @@ build_vae_normal_full_covariance <- function(num_items,
                                              skill_mean,
                                              kl_weight,
                                              num_items)
-  print("loss function worked")
   keras::compile(vae,
-                 optimizer = keras::optimizer_adam(), #loss = keras::loss_binary_crossentropy)
+                 optimizer = keras::optimizer_adam(),
                  loss = vae_loss
                  )
   list(encoder, decoder, vae)
