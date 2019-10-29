@@ -13,9 +13,11 @@ vignette: >
 ```{r setup}
 library(ML2Pvae)
 ```
+\newtheorem{thm}{Theorem}
 \def \R{\ensuremath \mathbb{R}}
 \def \e{\ensuremath \varepsilon}
 \def \d{\ensuremath \delta}
+\def \tr{\ensuremath \text{tr}}
 
 ## Introduction
 Overview of everything.
@@ -67,14 +69,45 @@ vae_loss_normal_full_covariance
 ```
 -->
 
-## Proof of implementation of full covariance
-Show why my shit works 
-Note that typical LaTeX equations work $GG^T = \Sigma$
-\[y = 2x^2\]
+## Implementation Details
+While here are plenty of examples of implementing a basic VAE available, the modified architecture we use here has a few specifications which are non-trivial. The first of these is to use the $Q$ matrix to restrict non-negative weights in the decoder. Since most neural networks are a black box and use densely connected layers, specifying particular connections between nodes is uncommon. In order to achieve this, we use a custom kernal constraint function that multiplies a weight matrix element-wise by the given binary $Q$ matrix. The matrix dimensions match by construction.
+
+The other, and more difficult, feature to implement is building a VAE which fits the encoded dimension to a multivariate normal distribution $\mathcal{N}(\mu_1, \Sigma_1)$ with a full covariance matrix $\Sigma_1$. All available code examples of a VAE assume that $\mu_1 = 0$ and $\Sigma_0 = I$. This is a reasonable assumption in nearly all VAE applications. Since VAE are both uninterpretable and unsupervised, the user doesn't know what features the encoded space represents, so it is convenient to force each node in the encoded layer to be independent and normally distributed. In ML2P-VAE, we know exactly what the values in this hidden layer should represent. Further, we (ideally) know how each node in the enoded layer should relate to each other. In other words, we are given a covariance matrix that gives the relationship between each latent ability $\theta_k$.
+
+Note that after training, we can feed any data sample $x_0$ through the encoder to obtain nodes correlating to $\mathcal{N}(\mu_0, \Sigma_0)$, the latent distribution for that data point. There are two things to consider in the full covariance matrix VAE implementation: (i) we need to be able to sample from the distribution, and (ii) we need to calculate the Kullback-Liebler Divergence as part of our loss function. 
+
+In order to sample from $\mathcal{N}(\mu_0, \Sigma_0)$, we first need a matrix $G_0$ such that $G_0 G_0^T = \Sigma_0$. Next, sample $\e_0 = (\e_1,...,\e_k)^T$ with each $\e_i \sim \mathcal{N}(0,1)$. Then the sample we generate is $z_0 = \mu_0 + G_0 \e_0$. The KL Divergence between two multivariate normal distributions is given as
+\begin{align}
+\mathcal{D}_{KL}\left[\mathcal{N}(\mu_0, \Sigma_0) || \mathcal{N}(\mu_1, \Sigma_1)\right] = \frac{1}{2} \left(\text{tr}(\Sigma_1^{-1} \Sigma_0) + (\mu_1 - \mu_0)^T \Sigma_1^{-1} (\mu_1 - \mu_0) - k + \ln\left(\frac{\det \Sigma_1}{\det \Sigma_0} \right) \right)
+\label{kl_cov}
+\end{align}
+In our case, $\mu_1$ and $\Sigma_1$ are constant, since $\mathcal{N}(\mu_1, \Sigma_1)$ is the distribution we desire to fit out data to. So calculating $\Sigma_1^{-1}$ just one time shouldn't give any computational issues. However, notice that computing Equation \ref{kl_cov} requires $\ln(\det \Sigma_0)$. The matrix $\Sigma_0$ depends on the input $x_0$, as well as every weight and bias in the encoder. Since weights are often initiallized randomly, we need a clever way to ensure that $\det \Sigma_0 > 0$, regardless of the input or network parameters.
+
+To acheive this, for a latent distribution of dimension $K$, the encoder outputs $K + K(K+1)/2$ nodes. $K$ of these represent the mean vectore $\mu_0$, while the remaining $K(K+1)/2$ represent a lower triangular matrix $L_0$. In order to sample, we calculate the matrix exponential $G_0 = e^{L_0}$. Note that $G_0$ is lower triangular and nonsingular. We can then use the matrix $G_0$ to generate a sample to pass through the decoder.
+
+In our computation of KL Divergence, we use the same matrix $G_0$ to compute $\Sigma_0 = G_0 G_0^T$. From this construction, we have
 \begin{align*}
-y&=x \\
-&\leq x
+\det \Sigma_0 &= \det(G_0 G_0^T) \\
+&= \det e^{L_0} \cdot \det (e^{L_0})^T \\
+&= e^{\text{tr}L_0} \cdot e^{\text{tr}L_0^T} \\
+&> 0
 \end{align*}
+This ensures that there will be no problems with computing Equation \ref{kl_cov} at any point during training. But we can also show that $\Sigma_0$ represents a covariance matrix, i.e., that $\Sigma_0$ is symmetric and positive definite.
+
+\begin{thm}
+$\Sigma_0$ under the previously described construction is symmetric and positive definite.
+\end{thm}
+\begin{proof}
+Consider any lower triangular $L_0 \in \R^{k \times k}$. Consider the matrix exponential 
+\[G_0 := e^{L_0} = \sum_{n=0}^\infty \frac{L_0^n}{n!} = I + L_0 + \frac{1}{2}L_0^2 + \cdots\]
+$G_0$ is lower triangular, since addition and multiplication of matrices preserve lower triangular. $G_0$ is also nonsingular, as $\det G_0 = \det e^{L_0} = e^{\tr L_0} \not = 0$.
+Set $\Sigma_0 := G_0 G_0^T$. Now for any nonzero $y \in \R^k$,
+\begin{align*}
+\langle \Sigma_0y, y \rangle = y^T \Sigma_0 y = y^T G_0 G_0^T y = \langle G_0^T y, G_0^T y \rangle = ||G_0^T y||_2^2 > 0
+\end{align*}
+
+\end{proof}
+
 
 ## Code Examples of how to use the package
 ```{r, include = FALSE}
