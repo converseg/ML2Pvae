@@ -8,7 +8,7 @@ build_vae_normal_full_covariance(num_items, num_skills, Q_matrix,
   mean_vector = rep(0, num_skills),
   covariance_matrix = diag(num_skills), enc_hid_arch = c(10),
   hid_enc_activations = rep("sigmoid", length(enc_hid_arch)),
-  kl_weight = 1)
+  output_activation = "sigmoid", kl_weight = 1)
 }
 \arguments{
 \item{num_items}{the number of items on the assessment; also the number of nodes in the input/output layers of the VAE}
@@ -39,6 +39,7 @@ cov <- matrix(c(.7,.3,.3,1), nrow = 2, ncol = 2)
 models <- build_vae_normal_full_covariance(4, 2, Q,
           mean_vector = c(-0.5, 0), covariance_matrix = cov,
           enc_hid_arch = c(6, 3), hid_enc_activation = c('sigmoid', 'relu'),
+          output_activation = 'tanh',
           kl_weight = 0.1)
 models <- build_vae_normal_full_covariance(4, 2, Q)
 vae <- models[[3]]

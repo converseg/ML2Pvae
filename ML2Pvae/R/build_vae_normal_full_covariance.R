@@ -15,6 +15,7 @@
 #' models <- build_vae_normal_full_covariance(4, 2, Q,
 #'           mean_vector = c(-0.5, 0), covariance_matrix = cov,
 #'           enc_hid_arch = c(6, 3), hid_enc_activation = c('sigmoid', 'relu'),
+#'           output_activation = 'tanh',
 #'           kl_weight = 0.1)
 #' models <- build_vae_normal_full_covariance(4, 2, Q)
 #' vae <- models[[3]]
@@ -25,6 +26,7 @@ build_vae_normal_full_covariance <- function(num_items,
                                              covariance_matrix = diag(num_skills),
                                              enc_hid_arch = c(10),
                                              hid_enc_activations = rep('sigmoid', length(enc_hid_arch)),
+                                             output_activation = 'sigmoid',
                                              kl_weight = 1){
   det_skill_cov <- tensorflow::tf$constant(det(covariance_matrix), dtype = 'float32')
   inv_skill_cov <- tensorflow::tf$constant(solve(covariance_matrix), dtype = 'float32') #add try-catch for non invertible/posdef covariance

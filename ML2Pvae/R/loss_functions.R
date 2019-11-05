@@ -6,10 +6,9 @@
 #' @param rec_dim the number of nodes in the input/output of the VAE
 vae_loss_standard_normal <- function(z_mean, z_log_var, kl_weight, rec_dim){
   kl_loss <- 0.5 * keras::k_sum(keras::k_square(z_mean) +
-                                  keras::k_exp(z_log_var -
+                                  keras::k_exp(z_log_var) -
                                   1 -
-                                  z_log_var
-                                  ),
+                                  z_log_var,
                                   axis = -1L)
   loss <- function(input, output){
     rec_loss <- rec_dim * keras::loss_binary_crossentropy(input, output)

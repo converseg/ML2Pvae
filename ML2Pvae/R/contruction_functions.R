@@ -7,7 +7,7 @@ sampling_standard_normal <- function(arg){
   z_log_var <- arg[, (num_skills + 1):(2 * num_skills)]
   b_size <- keras::k_int_shape(z_mean)[[1]]
   eps <- keras::k_random_normal(
-    shape = c(b_size, keras::k_cast(num_skills, dtype = 'int32')),
+    shape = c(b_size, keras::k_cast(num_skills, dtype = 'int32')), #TODO: b_size might not really work
     mean = 0, stddev = 1
   )
   z_mean + tensorflow::tf$multiply(keras::k_exp(z_log_var / 2), eps)
