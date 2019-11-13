@@ -17,23 +17,21 @@ sampling_standard_normal <- function(arg){
 #'
 #' @param arg a layer of tensors representing the mean and log cholesky transform of the covariance matrix
 sampling_normal_full_covariance <- function(arg){ #TODO: This shit is doing something wrong - i fixed this... right???
-  num_skills <- -1.5 + sqrt(2 * keras::k_int_shape(arg)[[2]] + 9/4)
+  num_skills <- as.integer(-1.5 + sqrt(2 * keras::k_int_shape(arg)[[2]] + 9/4))
   z_mean <- arg[, 1:(num_skills)]
-  print("sampling: pre tri")
-  z_log_cholesky <- tensorflow::tf$contrib$distributions$fill_triangular(
-    arg[, (num_skills + 1):(keras::k_int_shape(arg)[[2]])])
-  print("sampling: post tri")
-  z_cholesky <- tensorflow::tf$linalg$expm(z_log_cholesky) #this should be nonsingular and lower triangular (possible floating point errors)
   b_size <- keras::k_int_shape(z_mean)[[1]]
   if (is.null(b_size)){ #fix for batch size and matmul
     b_size <- 1
   }
+  z_log_cholesky <- tensorflow::tf$contrib$distributions$fill_triangular(
+    arg[1:b_size, (num_skills + 1):(keras::k_int_shape(arg)[[2]])])
+  z_cholesky <- tensorflow::tf$linalg$expm(z_log_cholesky) #this should be nonsingular and lower triangular (possible floating point errors)
   eps <- keras::k_random_normal(
     shape = c(b_size, num_skills, 1),
     mean = 0, stddev = 1
   )
   # z_mean + keras::k_reshape(keras::k_dot(z_cholesky, eps), shape=c(-1, num_skills)) #this breaks the sampling test
-  z_mean + keras::k_reshape(tensorflow::tf$matmul(z_cholesky, eps), shape=c(-1, num_skills)) #this breaks the architecture test
+  z_mean + keras::k_reshape(tensorflow::tf$matmul(z_cholesky, eps), shape = c(-1, num_skills)) #this breaks the architecture test
 }
 
 #' A custom kernel constraint function that restricts weights between the learned distribution and output. Nonzero weights are determined by the Q matrix

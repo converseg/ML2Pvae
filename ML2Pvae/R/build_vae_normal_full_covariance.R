@@ -51,8 +51,6 @@ build_vae_normal_full_covariance <- function(num_items,
   output <- decoder(encoder(input)[3])
 
   vae <- keras::keras_model(input, output)
-  #TODO: some bug with batch size and fill_triangular when I try to fit model
-  print("build: pre tri")
   vae_loss <- vae_loss_normal_full_covariance(z_mean,
                                              tensorflow::tf$contrib$distributions$fill_triangular(z_log_cholesky),
                                              inv_skill_cov,
@@ -60,7 +58,6 @@ build_vae_normal_full_covariance <- function(num_items,
                                              skill_mean,
                                              kl_weight,
                                              num_items)
-  print("build: post tri")
   keras::compile(vae,
                  optimizer = keras::optimizer_adam(),
                  loss = vae_loss
