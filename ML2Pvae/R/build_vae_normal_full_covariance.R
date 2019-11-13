@@ -19,6 +19,9 @@
 #'           kl_weight = 0.1)
 #' models <- build_vae_normal_full_covariance(4, 2, Q)
 #' vae <- models[[3]]
+#' 
+#' TODO: There seems to be a bad calculation somewhere when we do batches. the results are good when
+#' batch size is 1, but get pretty bad if batch size is 64+
 build_vae_normal_full_covariance <- function(num_items,
                                              num_skills,
                                              Q_matrix,
