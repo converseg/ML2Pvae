@@ -21,7 +21,8 @@
 #' vae <- models[[3]]
 #' 
 #' TODO: There seems to be a bad calculation somewhere when we do batches. the results are good when
-#' batch size is 1, but get pretty bad if batch size is 64+
+#' batch size is 1, 2, 4 (tiny bit worse), but get pretty bad if batch size is 64, 32, 16 (ehhh), 8 (better).
+#' If there is a bug, it is likely in sampling, not loss (since batch tests work)
 build_vae_normal_full_covariance <- function(num_items,
                                              num_skills,
                                              Q_matrix,
