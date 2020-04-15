@@ -1,5 +1,4 @@
 context("KL loss")
-#TODO: Make these calculate KL div for batch of size 2
 test_that("standard normal KL divergence is computed correctly", {
   sess <- tensorflow::tf$Session()
   m1 <- tensorflow::tf$constant(c(0.25, -0.5), shape = c(1,2))
