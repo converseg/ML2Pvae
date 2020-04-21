@@ -10,6 +10,7 @@ vae_loss_standard_normal <- function(z_mean, z_log_var, kl_weight, rec_dim){
                                   1 -
                                   z_log_var,
                                   axis = -1L)
+  #TODO: do i need to use @tf$function ?
   loss <- function(input, output){
     rec_loss <- rec_dim * keras::loss_binary_crossentropy(input, output)
     keras::k_mean(kl_weight * kl_loss + rec_loss)
@@ -33,19 +34,18 @@ vae_loss_normal_full_covariance <- function(z_mean,
                                             skill_mean,
                                             kl_weight,
                                             rec_dim){
-  loss <- function(input, output){ #had to move this fcn definition up here to fix expm error???
+  #TODO: do i need to use @tf$function ?
+  loss <- function(input, output){
     z_cholesky <- tensorflow::tf$linalg$expm(z_log_cholesky)
     z_cov_matrix <- tensorflow::tf$matmul(z_cholesky, tensorflow::tf$transpose(z_cholesky, c(0L, 2L, 1L)))
     num_skills <- keras::k_int_shape(skill_mean)[[2]]
-    diff <- tensorflow::tf$reshape(z_mean - skill_mean, c(-1L, num_skills, 1L)) #originally was tf$reshape ---k_reshape??
+    diff <- tensorflow::tf$reshape(z_mean - skill_mean, c(-1L, num_skills, 1L))
     temp <- keras::k_dot(tensorflow::tf$transpose(diff, c(0L, 2L, 1L)), inv_skill_cov)
     kl_loss <- 0.5 * (tensorflow::tf$linalg$trace(tensorflow::tf$transpose(
                           keras::k_dot(inv_skill_cov, z_cov_matrix), c(1L,0L,2L))) +
                         keras::k_reshape(tensorflow::tf$matmul(temp, diff), c(-1)) -
                         tensorflow::tf$constant(num_skills, dtype = 'float32') +
-                        log(det_skill_cov / tensorflow::tf$linalg$det(z_cov_matrix))) #TODO: prod(diag(z_cholesky)))^2 instead of det???
-    #use k_mean, k_sum, or neither?
-    ### moved fcn def from here
+                        log(det_skill_cov / tensorflow::tf$linalg$det(z_cov_matrix)))
     rec_loss <- rec_dim * keras::loss_binary_crossentropy(input, output)
     keras::k_mean(kl_weight * kl_loss + rec_loss)
   }

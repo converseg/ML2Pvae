@@ -5,14 +5,16 @@ Version: 0.1.0
 Authors@R: person("Geoffrey", "Converse", email = "converseg@gmail.com", role = c("aut", "cre"))
 Author: Geoffrey Converse [aut, cre]
 Maintainer: Geoffrey Converse <converseg@gmail.com>
-Description: Based on the work "Interpretable Variational Autoencdoers for Cognitive Models" by Curi, M., Converse, G., Hajewski, J., and Oliveira, S. Found in International Joint Conference on Neural Networks, 2019. This package provides easy-to-use functions which create a variational autoencoder to be used for parameter estimation in Item Response Theory (IRT) - namely the Multidimensional Logistic 2-Parameter (ML2P) model. To use a neural network as such, nontrivial modifications to the architecture must be made, such as restricting the nonzero weights in the decoder according to some binary matrix Q. The functions in this package build everything automatically so that minimal knowledge of tensorflow/keras is required for the user.
+Description: Based on the work "Interpretable Variational Autoencdoers for Cognitive Models" by Curi, M., Converse, G., Hajewski, J., and Oliveira, S. Found in International Joint Conference on Neural Networks, 2019. This package provides easy-to-use functions which create a variational autoencoder to be used for parameter estimation in Item Response Theory (IRT) - namely the Multidimensional Logistic 2-Parameter (ML2P) model. To use a neural network as such, nontrivial modifications to the architecture must be made, such as restricting the nonzero weights in the decoder according to some binary matrix Q. The functions in this package build everything automatically so that minimal knowledge of tensorflow/keras is required for the user. 
+Note: The developer version of Keras should be used, rather than the CRAN version. The latter will cause tests to fail on their initial run, but work on subsequent tries. To avoid this, use devtools::install_github("rstudio/keras").
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Imports:
     dplyr,
-    tensorflow,
-    keras
+    tensorflow (>= 2.0),
+    keras,
+    tfprobability (>= 0.9)
 RoxygenNote: 6.1.1
 Suggests: 
     knitr,
