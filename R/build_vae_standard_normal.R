@@ -3,6 +3,7 @@
 #' @param num_items the number of items on the assessment; also the number of nodes in the input/output layers of the VAE
 #' @param num_skills the number of skills being evaluated; also the size of the distribution learned by the VAE
 #' @param Q_matrix a binary, \code{num_skills} by \code{num_items} matrix relating the assessment items with skills
+#' @param model_type either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model
 #' @param enc_hid_arch a vector detailing the number an size of hidden layers in the encoder
 #' @param hid_enc_activations a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}
 #' @param kl_weight an optional weight for the KL divergence term in the loss function
@@ -17,10 +18,16 @@
 build_vae_standard_normal <- function(num_items,
                                       num_skills,
                                       Q_matrix,
+                                      model_type = 2,
                                       enc_hid_arch=c(10),
                                       hid_enc_activations=rep('sigmoid', length(enc_hid_arch)),
                                       output_activation='sigmoid',
                                       kl_weight=1){
+  if(model_type == 1){
+    weight_constraint <- q_1pl_constraint
+  } else if(model_type == 2){
+    weight_constraint <- q_constraint
+  }
   encoder_layers <- build_hidden_encoder(num_items, enc_hid_arch, hid_enc_activations)
   input <- encoder_layers[[1]]
   h <- encoder_layers[[2]]
@@ -34,7 +41,7 @@ build_vae_standard_normal <- function(num_items,
   out <- keras::layer_dense(latent_inputs,
                             units = num_items,
                             activation = output_activation,
-                            kernel_constraint = q_constraint(Q_matrix),
+                            kernel_constraint = weight_constraint(Q_matrix),
                             name = 'vae_out')
   decoder <- keras::keras_model(latent_inputs, out)
   output <- decoder(encoder(input)[3])

@@ -3,6 +3,7 @@
 #' @param num_items the number of items on the assessment; also the number of nodes in the input/output layers of the VAE
 #' @param num_skills the number of skills being evaluated; also the size of the distribution learned by the VAE
 #' @param Q_matrix a binary, \code{num_skills} by \code{num_items} matrix relating the assessment items with skills
+#' @param model_type either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model
 #' @param mean_vector a vector of length \code{num_skills} specifying the mean of each latent trait
 #' @param covariance_matrix a symmetric, positive definite, \code{num_skills} by \code{num_skills}, matrix giving the covariance of the latent traits
 #' @param enc_hid_arch a vector detailing the number an size of hidden layers in the encoder
@@ -19,23 +20,29 @@
 #'           kl_weight = 0.1)
 #' models <- build_vae_normal_full_covariance(4, 2, Q)
 #' vae <- models[[3]]
-#' 
+#'
 #' TODO: There seems to be a bad calculation somewhere when we do batches. the results are good when
 #' batch size is 1, 2, 4 (tiny bit worse), but get pretty bad if batch size is 64, 32, 16 (ehhh), 8 (better).
 #' If there is a bug, it is likely in sampling, not loss (since batch tests work)
 build_vae_normal_full_covariance <- function(num_items,
                                              num_skills,
                                              Q_matrix,
+                                             model_type = 2,
                                              mean_vector = rep(0, num_skills),
                                              covariance_matrix = diag(num_skills),
                                              enc_hid_arch = c(10),
                                              hid_enc_activations = rep('sigmoid', length(enc_hid_arch)),
                                              output_activation = 'sigmoid',
                                              kl_weight = 1){
+  if(model_type == 1){
+    weight_constraint <- q_1pl_constraint
+  } else if(model_type == 2){
+    weight_constraint <- q_constraint
+  }
   det_skill_cov <- tensorflow::tf$constant(det(covariance_matrix), dtype = 'float32')
   inv_skill_cov <- tensorflow::tf$constant(solve(covariance_matrix), dtype = 'float32') #TODO: add try-catch for non invertible/posdef covariance
   skill_mean <- tensorflow::tf$constant(mean_vector, shape = c(1L, as.integer(num_skills)), dtype = 'float32')
-  
+
   encoder_layers <- build_hidden_encoder(num_items, enc_hid_arch, hid_enc_activations)
   input <- encoder_layers[[1]]
   h <- encoder_layers[[2]]
@@ -49,7 +56,7 @@ build_vae_normal_full_covariance <- function(num_items,
   out <- keras::layer_dense(latent_inputs,
                             units = num_items,
                             activation = 'sigmoid',
-                            kernel_constraint = q_constraint(Q_matrix),
+                            kernel_constraint = weight_constraint(Q_matrix),
                             name = 'vae_out')
   decoder <- keras::keras_model(latent_inputs, out)
   output <- decoder(encoder(input)[3])

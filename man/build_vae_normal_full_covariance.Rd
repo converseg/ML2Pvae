@@ -5,7 +5,7 @@
 \title{Build a VAE that fits to a normal, full covariance N(m,S) latent distribution}
 \usage{
 build_vae_normal_full_covariance(num_items, num_skills, Q_matrix,
-  mean_vector = rep(0, num_skills),
+  model_type = 2, mean_vector = rep(0, num_skills),
   covariance_matrix = diag(num_skills), enc_hid_arch = c(10),
   hid_enc_activations = rep("sigmoid", length(enc_hid_arch)),
   output_activation = "sigmoid", kl_weight = 1)
@@ -16,6 +16,8 @@ build_vae_normal_full_covariance(num_items, num_skills, Q_matrix,
 \item{num_skills}{the number of skills being evaluated; also the size of the distribution learned by the VAE}
 
 \item{Q_matrix}{a binary, \code{num_skills} by \code{num_items} matrix relating the assessment items with skills}
+
+\item{model_type}{either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model}
 
 \item{mean_vector}{a vector of length \code{num_skills} specifying the mean of each latent trait}
 

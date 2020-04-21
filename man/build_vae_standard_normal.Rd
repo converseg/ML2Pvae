@@ -5,8 +5,9 @@
 \title{Build a VAE that fits to a standard N(0,I) latent distribution with independent latent traits}
 \usage{
 build_vae_standard_normal(num_items, num_skills, Q_matrix,
-  enc_hid_arch = c(10), hid_enc_activations = rep("sigmoid",
-  length(enc_hid_arch)), output_activation = "sigmoid", kl_weight = 1)
+  model_type = 2, enc_hid_arch = c(10),
+  hid_enc_activations = rep("sigmoid", length(enc_hid_arch)),
+  output_activation = "sigmoid", kl_weight = 1)
 }
 \arguments{
 \item{num_items}{the number of items on the assessment; also the number of nodes in the input/output layers of the VAE}
@@ -14,6 +15,8 @@ build_vae_standard_normal(num_items, num_skills, Q_matrix,
 \item{num_skills}{the number of skills being evaluated; also the size of the distribution learned by the VAE}
 
 \item{Q_matrix}{a binary, \code{num_skills} by \code{num_items} matrix relating the assessment items with skills}
+
+\item{model_type}{either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model}
 
 \item{enc_hid_arch}{a vector detailing the number an size of hidden layers in the encoder}
 

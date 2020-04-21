@@ -50,3 +50,9 @@ q_constraint <- function(Q){ #note - might be able to use custom layer class to 
   }
   constraint
 }
+
+q_1pl_constraint <- function(Q){
+  constraint <- function(w){
+    Q # require all weights = 1 according to Q matrix so VAE will esimate 1-parameter logistic model
+  }
+}
