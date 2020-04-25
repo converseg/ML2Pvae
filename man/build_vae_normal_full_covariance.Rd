@@ -4,11 +4,18 @@
 \alias{build_vae_normal_full_covariance}
 \title{Build a VAE that fits to a normal, full covariance N(m,S) latent distribution}
 \usage{
-build_vae_normal_full_covariance(num_items, num_skills, Q_matrix,
-  model_type = 2, mean_vector = rep(0, num_skills),
-  covariance_matrix = diag(num_skills), enc_hid_arch = c(10),
+build_vae_normal_full_covariance(
+  num_items,
+  num_skills,
+  Q_matrix,
+  model_type = 2,
+  mean_vector = rep(0, num_skills),
+  covariance_matrix = diag(num_skills),
+  enc_hid_arch = c(10),
   hid_enc_activations = rep("sigmoid", length(enc_hid_arch)),
-  output_activation = "sigmoid", kl_weight = 1)
+  output_activation = "sigmoid",
+  kl_weight = 1
+)
 }
 \arguments{
 \item{num_items}{the number of items on the assessment; also the number of nodes in the input/output layers of the VAE}

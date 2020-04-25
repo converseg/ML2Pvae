@@ -2,12 +2,12 @@
 % Please edit documentation in R/test_script.R
 \name{test_standard_normal}
 \alias{test_standard_normal}
-\title{TODO documentation
+\title{TODO this whole script - mayble load in CDM data
 This is a script for testing a VAE that fits a standard normal distribution}
 \usage{
 test_standard_normal()
 }
 \description{
-TODO documentation
+TODO this whole script - mayble load in CDM data
 This is a script for testing a VAE that fits a standard normal distribution
 }

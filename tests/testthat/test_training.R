@@ -70,7 +70,7 @@ test_that("1-parameter logistic model option makes all decoder weights = 1", {
              verbose = 0,
              batch_size = 1
   )
-  decoder_weights <- keras::get_weights(models[[2]])
+  decoder_weights <- keras::get_weights(decoder[[2]])
   disc_estimates <- decoder_weights[[1]]
   expect_equal(disc_estimates, Q)
 })

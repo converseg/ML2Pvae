@@ -4,8 +4,15 @@
 \alias{vae_loss_normal_full_covariance}
 \title{A custom loss function for a VAE learning a multivariate normal distribution with a full covariance matrix}
 \usage{
-vae_loss_normal_full_covariance(z_mean, z_log_cholesky, inv_skill_cov,
-  det_skill_cov, skill_mean, kl_weight, rec_dim)
+vae_loss_normal_full_covariance(
+  z_mean,
+  z_log_cholesky,
+  inv_skill_cov,
+  det_skill_cov,
+  skill_mean,
+  kl_weight,
+  rec_dim
+)
 }
 \arguments{
 \item{z_mean}{a tensor (layer) representing the mean in the VAE}

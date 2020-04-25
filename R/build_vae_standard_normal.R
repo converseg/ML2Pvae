@@ -8,6 +8,7 @@
 #' @param hid_enc_activations a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}
 #' @param kl_weight an optional weight for the KL divergence term in the loss function
 #' @return Returns three keras models: the encoder, decoder, and vae.
+#' @export
 #' @examples
 #' Q <- matrix(c(1,0,1,1,0,1,1,0), nrow = 2, ncol = 4)
 #' models <- build_vae_standard_normal(4, 2, Q,

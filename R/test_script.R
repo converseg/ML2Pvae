@@ -1,4 +1,4 @@
-#' TODO documentation
+#' TODO this whole script - mayble load in CDM data
 #' This is a script for testing a VAE that fits a standard normal distribution
 test_standard_normal <- function(){
   num_items <- 28

@@ -4,8 +4,11 @@
 \alias{build_hidden_encoder}
 \title{Build the encoder for your VAE}
 \usage{
-build_hidden_encoder(input_size, layers, activations = rep("sigmoid",
-  length(layers)))
+build_hidden_encoder(
+  input_size,
+  layers,
+  activations = rep("sigmoid", length(layers))
+)
 }
 \arguments{
 \item{input_size}{an integer}

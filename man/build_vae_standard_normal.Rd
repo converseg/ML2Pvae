@@ -4,10 +4,16 @@
 \alias{build_vae_standard_normal}
 \title{Build a VAE that fits to a standard N(0,I) latent distribution with independent latent traits}
 \usage{
-build_vae_standard_normal(num_items, num_skills, Q_matrix,
-  model_type = 2, enc_hid_arch = c(10),
+build_vae_standard_normal(
+  num_items,
+  num_skills,
+  Q_matrix,
+  model_type = 2,
+  enc_hid_arch = c(10),
   hid_enc_activations = rep("sigmoid", length(enc_hid_arch)),
-  output_activation = "sigmoid", kl_weight = 1)
+  output_activation = "sigmoid",
+  kl_weight = 1
+)
 }
 \arguments{
 \item{num_items}{the number of items on the assessment; also the number of nodes in the input/output layers of the VAE}

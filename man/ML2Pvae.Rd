@@ -3,7 +3,6 @@
 \docType{package}
 \name{ML2Pvae}
 \alias{ML2Pvae}
-\alias{ML2Pvae-package}
 \title{ML2Pvae: A package for creating a VAE whose decoder recovers the parameters of the ML2P model.
 The encoder can be used to predict the latent skills based on assessment scores.}
 \description{
