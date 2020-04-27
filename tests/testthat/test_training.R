@@ -62,6 +62,7 @@ test_that("1-parameter logistic model option makes all decoder weights = 1", {
   data <- matrix(responses, nrow = 10, ncol = 4)
   Q <- matrix(c(1,0,1,1,0,1,1,0), nrow = 2, ncol = 4)
   models <- build_vae_standard_normal(4, 2, Q, model_type = 1, enc_hid_arch = c(5,3))
+  decoder <- models[[2]]
   vae <- models[[3]]
   keras::fit(vae,
              data, data,
@@ -70,7 +71,7 @@ test_that("1-parameter logistic model option makes all decoder weights = 1", {
              verbose = 0,
              batch_size = 1
   )
-  decoder_weights <- keras::get_weights(decoder[[2]])
+  decoder_weights <- keras::get_weights(decoder)
   disc_estimates <- decoder_weights[[1]]
   expect_equal(disc_estimates, Q)
 })
