@@ -31,13 +31,23 @@ build_vae_normal_full_covariance <- function(num_items,
                                              model_type = 2,
                                              mean_vector = rep(0, num_skills),
                                              covariance_matrix = diag(num_skills),
-                                             enc_hid_arch = c(10),
+                                             enc_hid_arch = c(ceiling((num_items + num_skills)/2)),
                                              hid_enc_activations = rep('sigmoid', length(enc_hid_arch)),
                                              output_activation = 'sigmoid',
                                              kl_weight = 1){
-  if(model_type == 1){
+  validate_inputs(num_items,
+                             num_skills,
+                             Q_matrix,
+                             model_type,
+                             mean_vector,
+                             covariance_matrix,
+                             enc_hid_arch,
+                             hid_enc_activations,
+                             output_activation,
+                             kl_weight)
+  if (model_type == 1){
     weight_constraint <- q_1pl_constraint
-  } else if(model_type == 2){
+  } else if (model_type == 2){
     weight_constraint <- q_constraint
   }
   det_skill_cov <- tensorflow::tf$constant(det(covariance_matrix), dtype = 'float32')

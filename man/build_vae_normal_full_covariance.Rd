@@ -11,7 +11,7 @@ build_vae_normal_full_covariance(
   model_type = 2,
   mean_vector = rep(0, num_skills),
   covariance_matrix = diag(num_skills),
-  enc_hid_arch = c(10),
+  enc_hid_arch = c(ceiling((num_items + num_skills)/2)),
   hid_enc_activations = rep("sigmoid", length(enc_hid_arch)),
   output_activation = "sigmoid",
   kl_weight = 1
