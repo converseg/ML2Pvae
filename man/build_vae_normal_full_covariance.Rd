@@ -34,6 +34,8 @@ build_vae_normal_full_covariance(
 
 \item{hid_enc_activations}{a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}}
 
+\item{output_activation}{a string specifying the activation function in the output of the decoder; the ML2P model alsways used 'sigmoid'}
+
 \item{kl_weight}{an optional weight for the KL divergence term in the loss function}
 }
 \value{
@@ -52,8 +54,4 @@ models <- build_vae_normal_full_covariance(4, 2, Q,
           kl_weight = 0.1)
 models <- build_vae_normal_full_covariance(4, 2, Q)
 vae <- models[[3]]
-
-TODO: There seems to be a bad calculation somewhere when we do batches. the results are good when
-batch size is 1, 2, 4 (tiny bit worse), but get pretty bad if batch size is 64, 32, 16 (ehhh), 8 (better).
-If there is a bug, it is likely in sampling, not loss (since batch tests work)
 }

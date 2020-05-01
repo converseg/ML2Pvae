@@ -5,7 +5,7 @@
 \alias{theta_true}
 \title{Simulated ability parameters}
 \format{
-A data frame with 500 rows and 3 columns. Each row represents a particular
+A data frame with 5000 rows and 3 columns. Each row represents a particular
 student's three latent abilities.
 }
 \source{
@@ -16,6 +16,6 @@ with mean 0 and covariance matrix \code{correlation_matrix.rda}.
 theta_true
 }
 \description{
-Three correlated ability parameters for 500 students.
+Three correlated ability parameters for 5000 students.
 }
 \keyword{datasets}
