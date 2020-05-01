@@ -1,8 +1,15 @@
+#' Give error messages for invalid inputs in exported functions.
 #'
-#' TODO: documentation
-#'
-#'
-#'
+#' @param num_items the number of items on the assessment; also the number of nodes in the input/output layers of the VAE
+#' @param num_skills the number of skills being evaluated; also the size of the distribution learned by the VAE
+#' @param Q_matrix a binary, \code{num_skills} by \code{num_items} matrix relating the assessment items with skills
+#' @param model_type either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model
+#' @param mean_vector a vector of length \code{num_skills} specifying the mean of each latent trait
+#' @param covariance_matrix a symmetric, positive definite, \code{num_skills} by \code{num_skills}, matrix giving the covariance of the latent traits
+#' @param enc_hid_arch a vector detailing the number an size of hidden layers in the encoder
+#' @param hid_enc_activations a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}
+#' @param output_activation a string specifying the activation function in the output of the decoder; the ML2P model alsways used 'sigmoid'
+#' @param kl_weight an optional weight for the KL divergence term in the loss function
 validate_inputs <- function(num_items,
                             num_skills,
                             Q_matrix,
@@ -24,7 +31,7 @@ validate_inputs <- function(num_items,
       break
     }
   }
-  
+
   if (model_type == 1){
     weight_constraint <- q_1pl_constraint
   } else if (model_type == 2){
@@ -32,7 +39,7 @@ validate_inputs <- function(num_items,
   } else{
     message <- paste(message, 'Invalid input for \'model_type\'. Use either 1 for 1PL model, or 2 for 2PL model.', sep = '\n')
   }
-  
+
   #check dimensions of mean and covariance matrix
   if (length(mean_vector) != num_skills){
     message <- paste(message, 'Length of mean_vector must be equal to num_skills.', sep = '\n')
@@ -40,26 +47,26 @@ validate_inputs <- function(num_items,
   if (nrow(covariance_matrix) != ncol(covariance_matrix) || nrow(covariance_matrix) != num_skills){
     message <- paste(message, 'Dimensions of covariance_matrix must be num_skills by num_skills.', sep = '\n')
   }
-  
+
   #check covariance matrix is pos def
   m <- tryCatch(chol(covariance_matrix), error = function(err){
     return('The covariance_matrix must be positive definite.')})
   if (identical(m,'The covariance_matrix must be positive definite.')){
     message <- paste(message, m, sep = '\n')
   }
-  
+
   #check for invalid architecture
   if (typeof(enc_hid_arch) != "double" && typeof(enc_hid_arch) != "integer"){
     message <- paste(message, 'The enc_hid_arch must be a numeric vector.', sep = '\n')
   } else if (min(enc_hid_arch) < 1){
     message <- paste(message, 'The number of nodes in each hidden layer must be greater than or equal to 1.', sep = '\n')
   }
-  
+
   #check architecture sizes line up
   if (length(enc_hid_arch) != length(hid_enc_activations)){
     message <- paste(message, 'The enc_hid_arch and hid_enc_activations must be the same length.', sep = '\n')
   }
-  
+
   #check for valid activation functions
   valid_activations <- c('elu',
                          'exponential',
@@ -79,12 +86,12 @@ validate_inputs <- function(num_items,
       break
     }
   }
-  
+
   #make sure KL weight is >=0
   if (kl_weight < 0){
     message <- paste(message, 'The kl_weight must be greater than or equal to 0.', sep = '\n')
   }
-  
+
   # print out error message
   if (message != ''){
     stop(message)

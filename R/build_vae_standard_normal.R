@@ -6,6 +6,7 @@
 #' @param model_type either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model
 #' @param enc_hid_arch a vector detailing the number an size of hidden layers in the encoder
 #' @param hid_enc_activations a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}
+#' @param output_activation a string specifying the activation function in the output of the decoder; the ML2P model alsways used 'sigmoid'
 #' @param kl_weight an optional weight for the KL divergence term in the loss function
 #' @return Returns three keras models: the encoder, decoder, and vae.
 #' @export

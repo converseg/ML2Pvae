@@ -8,6 +8,7 @@
 #' @param covariance_matrix a symmetric, positive definite, \code{num_skills} by \code{num_skills}, matrix giving the covariance of the latent traits
 #' @param enc_hid_arch a vector detailing the number an size of hidden layers in the encoder
 #' @param hid_enc_activations a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}
+#' @param output_activation a string specifying the activation function in the output of the decoder; the ML2P model alsways used 'sigmoid'
 #' @param kl_weight an optional weight for the KL divergence term in the loss function
 #' @return Returns three keras models: the encoder, decoder, and vae.
 #' @export
@@ -36,22 +37,22 @@ build_vae_normal_full_covariance <- function(num_items,
                                              output_activation = 'sigmoid',
                                              kl_weight = 1){
   validate_inputs(num_items,
-                             num_skills,
-                             Q_matrix,
-                             model_type,
-                             mean_vector,
-                             covariance_matrix,
-                             enc_hid_arch,
-                             hid_enc_activations,
-                             output_activation,
-                             kl_weight)
+                  num_skills,
+                  Q_matrix,
+                  model_type,
+                  mean_vector,
+                  covariance_matrix,
+                  enc_hid_arch,
+                  hid_enc_activations,
+                  output_activation,
+                  kl_weight)
   if (model_type == 1){
     weight_constraint <- q_1pl_constraint
   } else if (model_type == 2){
     weight_constraint <- q_constraint
   }
   det_skill_cov <- tensorflow::tf$constant(det(covariance_matrix), dtype = 'float32')
-  inv_skill_cov <- tensorflow::tf$constant(solve(covariance_matrix), dtype = 'float32') #TODO: add try-catch for non invertible/posdef covariance
+  inv_skill_cov <- tensorflow::tf$constant(solve(covariance_matrix), dtype = 'float32')
   skill_mean <- tensorflow::tf$constant(mean_vector, shape = c(1L, as.integer(num_skills)), dtype = 'float32')
 
   encoder_layers <- build_hidden_encoder(num_items, enc_hid_arch, hid_enc_activations)
