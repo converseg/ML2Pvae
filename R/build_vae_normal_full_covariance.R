@@ -72,8 +72,7 @@ build_vae_normal_full_covariance <- function(num_items,
   vae <- keras::keras_model(input, output)
   b <- tfprobability::tfb_fill_triangular(upper=FALSE)
   vae_loss <- vae_loss_normal_full_covariance(z_mean,
-                                             # tensorflow::tf$contrib$distributions$fill_triangular(z_log_cholesky), #TF version <=1.9
-                                             b$forward(z_log_cholesky), #tf version >=2.1
+                                             b$forward(z_log_cholesky),
                                              inv_skill_cov,
                                              det_skill_cov,
                                              skill_mean,

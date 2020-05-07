@@ -33,7 +33,6 @@ vae_loss_normal_full_covariance <- function(z_mean,
                                             skill_mean,
                                             kl_weight,
                                             rec_dim){
-  #TODO: do i need to use @tf$function ?
   loss <- function(input, output){
     z_cholesky <- tensorflow::tf$linalg$expm(z_log_cholesky)
     z_cov_matrix <- tensorflow::tf$matmul(z_cholesky, tensorflow::tf$transpose(z_cholesky, c(0L, 2L, 1L)))
