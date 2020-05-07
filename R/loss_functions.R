@@ -10,7 +10,6 @@ vae_loss_standard_normal <- function(z_mean, z_log_var, kl_weight, rec_dim){
                                   1 -
                                   z_log_var,
                                   axis = -1L)
-  #TODO: do i need to use @tf$function ?
   loss <- function(input, output){
     rec_loss <- rec_dim * keras::loss_binary_crossentropy(input, output)
     keras::k_mean(kl_weight * kl_loss + rec_loss)

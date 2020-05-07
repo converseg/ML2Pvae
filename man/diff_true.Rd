@@ -5,7 +5,7 @@
 \alias{diff_true}
 \title{Simulated difficulty parameters}
 \format{
-A data frame with 15 rows and one column. 
+A data frame with 30 rows and one column.
 Each entry corresponds to the true value of a particular difficulty parameter.
 }
 \source{
@@ -15,6 +15,6 @@ Each entry is sampled uniformly from \code{[-3,3]}.
 diff_true
 }
 \description{
-Difficulty parameters for an exam with 15 items.
+Difficulty parameters for an exam with 30 items.
 }
 \keyword{datasets}
