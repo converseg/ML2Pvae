@@ -19,8 +19,8 @@ library(ML2Pvae)
 \def \d{\ensuremath \delta}
 \def \tr{\ensuremath \text{tr}}
 
-## Introduction
-Overview of everything.
+# Introduction
+This package allows easy implementation of the ML2P-VAE method for estimating parameters in Item Response Theory (IRT). This method was first proposed by Curi et. al. \cite{curi2019}, and was later compared with a similar method which used regular autoencoders, rather than variational autoencoders (VAE) \cite{ae_v_vae}. Other parameter estimation methods rely on numerical integration or MCMC methods, and are infeasible when the latent ability dimension is greater than 8. ML2P-VAE methods learn one function mapping response sets to latent abilities, and another function mapping latent abilities to the probability of answering items correctly. The latter is the Multidimensional Logistic 2-Parameter model.
 
 
 ## Multidimensional Logistic 2-Parameter (ML2P) Model
@@ -30,7 +30,7 @@ A naive approach is to simply use the raw exam score, or accuracy. But if two st
 
 Instead, theory has been developed \cite{thissen} that states that the probability of student $j$ answering item $i$ correctly is a function of $\Theta_j$, along with parameters $\Lambda_i$ associated with item $i$:
 \[P(u_{ij} = 1 | \Theta_j) = f(\Theta_j; \Lambda_i)\]
-In this work, we are concerned with the case where $\Theta_j = (\theta_{j1}, ..., \theta_{jK})^T \in \R^K$, so that an exam is designed to assess multiple skills. For example, an elementary math exam may test the abilities "add," "subtract," "multiply," and "divide." In order to keep track of which items asses which abilities, we can develop a binary matrix $Q \in \R^{K \times n}$ where
+In this work, we are concerned with the case where $\Theta_j = (\theta_{j1}, ..., \theta_{jK})^\top \in \R^K$, so that an exam is designed to assess multiple skills. For example, an elementary math exam may test the abilities "add," "subtract," "multiply," and "divide." In order to keep track of which items asses which abilities, we can develop a binary matrix $Q \in \R^{K \times n}$ where
 \[Q_{ki} = \begin{cases}
     1 & \text{if item } i \text{ requires skill } k \\ 
     0 & \text{otherwise} 
@@ -38,75 +38,76 @@ In this work, we are concerned with the case where $\Theta_j = (\theta_{j1}, ...
 It is important to note that multiple items can require multiple skills.
 
 The model that this package focuses on is the Multidimensional Logistic 2-Parameter (ML2P) model. The probability of a correct response is given by
-\[P(u_{ij}=1 | \Theta_j) = \frac{1}{1 + \exp[-\vec a_i^T\Theta_j + b_i]} = \frac{1}{1 + \exp[-\sum_{k=1}^K a_{ik}\theta_{jk} + b_i]}\]
-where the discrimination parameters $\vec a_i^T = (a_{ik})_{1\leq k\leq K}$ determine \textit{how much} of skill $k$ is required to answer item $i$ correctly, and the difficulty parameter $b_i$ quantifies the difficulty of item $i$.
+\[P(u_{ij}=1 | \Theta_j) = \frac{1}{1 + \exp[-\vec a_i^\top\Theta_j + b_i]} = \frac{1}{1 + \exp[-\sum_{k=1}^K a_{ik}\theta_{jk} + b_i]}\]
+where the discrimination parameters $\vec a_i^\top = (a_{ik})_{1\leq k\leq K}$ determine \textit{how much} of skill $k$ is required to answer item $i$ correctly, and the difficulty parameter $b_i$ quantifies the difficulty of item $i$.
 
 In application, we often only have response vectors for a set of students - so we need to estimate the ability parameters $\Theta_j$ for each student, along with the discrimination and difficulty parameters for each item. While there are many parameter estimation methods, including the Expectation-Maximization algorithm and various MCMC methods, many of them become infeasible as the number of latent traits increases beyond $\dim(\Theta_j) = 7$.
 
-## Variational Autoencoders
-How a VAE works.
+
+## ML2P-VAE Description
+Certain modifications to the typical VAE architecture \cite{kingma} are required in order to be used as parameter estimation methods. First, there are no hidden layers in the decoder. Instead, the non-zero weights in the decoder, are determined by a given $Q$-matrix. These connect the encoded distribution layer directly to the output layer. The output layer must use the sigmoidal activation function,
+\begin{equation}
+    \sigma(z_i) = \frac{1}{1 + e^{-z_i}}
+    \label{sigmoid}
+\end{equation}
+where $z_i = \sum_{k=1}^K w_{k,i}\alpha_{k} + b_i$. Here, $w_{i,k}$ is the weight between the $k$-th and $i$-th nodes in the second-to-last and output layer, respectively. $\alpha_k$ is the activation of the $k$-th node in the second-to-last layer, and $b_i$ is the bias value of the $i$-th node in the output layer. Note that the form of this activation function is identical to that of the ML2P model.
 
 
-## ML2P-VAE 
-Basic model description
+# Description of Exported Functions
+There are two functions in this package which are available for the user. Both of them assist in constructing an ML2P-VAE model, but the two make different assumptions about the latent abilities. Each of these two functions return three Keras models: the encoder, decoder, and full VAE. This way, the user can train the VAE, use the ecoder to obtain ability parameter estimates from student's response sets, and use the decoder to obtain item parameter estimates.
+
+## Independent Latent Traits
+`build_vae_standard_normal` assumes that each of the latent abilities are independent of one another. Thus, the abilities $\Theta$ are distrubited according to $\mathcal{N}(0,I)$. Constructing this model yields a similar architecture to a typical VAE, which are often trained to a normal independent distribution. 
+
+The encoder outputs $2\cdot($`num_skills`$)$ nodes, half of which represent the means of each latent trait, and the other half represent the log variance of each ability. There are no hidden layers in the decoder, and the encoded distribution is mapped directly to the output layer. The nonzero weights between these layers are determined by the Q-matrix.
+```r
+build_vae_standard_normal(num_items,
+                          num_skills,
+                          Q_matrix,
+                          model_type = 2,
+                          enc_hid_arch=c(ceiling((num_items + num_skills)/2)),
+                          hid_enc_activations=rep('sigmoid', length(enc_hid_arch)),
+                          output_activation='sigmoid',
+                          kl_weight=1)
+```                                      
+The first three arguments must be provided by the user. `num_items` and `num_skills` describe the assessment length and the number of abilities being evaluated by the assessment. `Q_matrix` is a `num_skills` by `num_items` matrix which specifies the relationship between items and abilities. This matrix specifies the nonzero weights in the decoder of the VAE, which allows interpretation of network parameters as discrimination/difficulty parameter estimates and the hidden encoded layer as ability parameter estimates. Without the`Q_matrix`, estimation of these parameters would not be possible.
+
+The other parameters in `build_vae_standard_normal` have default settings which can easily be adjusted. `model_type` can be either 1 or 2, specifying the use of a 1-Parameter or 2-Parameter Logistic model. If the 1-PL model is used, then all discrimination parameters (the weights in the decoder) are fixed to be equal to 1, and only the difficulty parameters (the biases in the output layer) are estimated.
+
+`enc_hid_arch` is a vector of integers, who's length determines the number of hidden layers in the encoder, and the entries describe the number of nodes in the hidden layers. The default setting is to have one hidden layer in the encoder, with size halfway between `num_items` (the size of the input layer) and `num_skills` (the dimension of the encoded distribution). `hid_enc_activations` is a vector of strings, which specifies the activation functions to be used in each encoder hidden layer. Note that this must have the same length as `enc_hid_arch`, and each string must be a valid activation function supported by Tensorflow. Valid options include: 'elu', 'exponential', 'hard_sigmoid', 'linear', 'relu', 'selu', 'sigmoid', 'softmax', 'softplus', 'softsign', 'tanh'.
+
+`output_activation` specifies the activation function in the output of the decoder. The default is to use a sigmoidal activation function, and should not be changed when using ML2P-VAE to estimate logistic models. If a different activation function is used, then the decoder cannot be interpreted as a ML2P model. The final option is the hyperparameter `kl_weight`, which changes the value of $\lambda$ in the VAE loss function
+\[\mathcal{L}(w) = \mathcal{L}_{0}(w) + \lambda \mathcal{L}_{KL}(w),\]
+where $\mathcal{L}_0$ is the reconstruction loss of the VAE, and $\mathcal{L}_{KL}$ is the KL-Divergence between $\mathcal{N}(0,I)$ and the distribution learned by the encoder.
 
 
-## List of package functions
-<!--
-Exported functions
-```{r}
-build_vae_standard_normal
-build_vae_normal_full_covariance
+## Correlated Latent Traits
+The second model, `build_vae_normal_full_covariance`, allows the latent traits to be correlated with one another, i.e. that latent abilities $\Theta$ are distrubited acording to $\mathcal{N}(\mu, \Sigma)$. However, these relationships must be known, as the ML2P-VAE method does not estimate correlations between abilities. Thus, the full covariance/correlation matrix $\Sigma$ must be provided in addition to the student response sets and the Q-matrix.
+
+The architecture of the decoder in `build_vae_normal_full_covariance` is exactly the same as that of `build_vae_standard_normal`. But the encoder outputs $K + K(K+1)/2$, where $K=$`num_skills`. The first $K$ represent the means of each latent ability, and the remaining $K(K+1)/2$ nodes form a lower triangular matrix $L$ which represents the matrix logarithm of the Cholesky decomposition of a covariance matrix. Thus for a data sample $x_0$, we can obtain $\mu_0$ and $L_0$, which we can use to construct $\Sigma_0 = e^{L_0} \cdot \left(e^{L_0}\right)^\top$. By construction, the matrix $\Sigma_0$ will always be symmetric and positive definite, regardless of the input $x_0$ or values of trainable parameters in the encoder. Thus $\Sigma_0$ can be interpreted as a covariance matrix, and the encoder maps each point $x_0$ to a multivariate Gaussian distribution $\mathcal{N}(\mu_0, \Sigma_0)$.
+```r
+build_vae_normal_full_covariance(num_items,
+                                 num_skills,
+                                 Q_matrix,
+                                 model_type = 2,
+                                 mean_vector = rep(0, num_skills),
+                                 covariance_matrix = diag(num_skills),
+                                 enc_hid_arch = c(ceiling((num_items + num_skills)/2)),
+                                 hid_enc_activations = rep('sigmoid', length(enc_hid_arch)),
+                                 output_activation = 'sigmoid',
+                                 kl_weight = 1)
 ```
--->
+Every argument from `build_vae_standard_normal` is also included in `build_vae_normal_full_covariance`. There are two additional parameters, `mean_vector` and `covariance_matrix`, which specify $\mu$ and $\Sigma$ in the assumed multivariate Gaussian distribution of latent traits. `mean_vector` must be of length `num_skills`, and `covariance_matrix` must be a `num_skills` by `num_skills` symmetric positive definite matrix.
 
-## Implementation Details
-While here are plenty of examples of implementing a basic VAE available, the modified architecture we use here has a few specifications which are non-trivial. The first of these is to use the $Q$ matrix to restrict non-negative weights in the decoder. Since most neural networks are a black box and use densely connected layers, specifying particular connections between nodes is uncommon. In order to achieve this, we use a custom kernal constraint function that multiplies a weight matrix element-wise by the given binary $Q$ matrix. The matrix dimensions match by construction.
+The default settings for these two arguments specify a $\mathcal{N}(0,I)$ distribution, but this method should never be used as such. Though it will work, `build_vae_standard_normal` will build a more efficient and more accurate model for assuming independent latent abilities. `build_vae_full_covariance` is most effectively used when these parameters specify a more compilcated distribution, such as $\mathcal{N}(\mu, \Sigma)$ or $\mathcal{N}(0, \Sigma)$.
 
-The other, and more difficult, feature to implement is building a VAE which fits the encoded dimension to a multivariate normal distribution $\mathcal{N}(\mu_1, \Sigma_1)$ with a full covariance matrix $\Sigma_1$. All available code examples of a VAE assume that $\mu_1 = 0$ and $\Sigma_0 = I$. This is a reasonable assumption in nearly all VAE applications. Since VAE are both uninterpretable and unsupervised, the user doesn't know what features the encoded space represents, so it is convenient to force each node in the encoded layer to be independent and normally distributed. In ML2P-VAE, we know exactly what the values in this hidden layer should represent. Further, we (ideally) know how each node in the enoded layer should relate to each other. In other words, we are given a covariance matrix that gives the relationship between each latent ability $\theta_k$.
-
-Note that after training, we can feed any data sample $x_0$ through the encoder to obtain nodes correlating to $\mathcal{N}(\mu_0, \Sigma_0)$, the latent distribution for that data point. There are two things to consider in the full covariance matrix VAE implementation: (i) we need to be able to sample from the distribution, and (ii) we need to calculate the Kullback-Liebler Divergence as part of our loss function. 
-
-In order to sample from $\mathcal{N}(\mu_0, \Sigma_0)$, we first need a matrix $G_0$ such that $G_0 G_0^T = \Sigma_0$. Next, sample $\e_0 = (\e_1,...,\e_k)^T$ with each $\e_i \sim \mathcal{N}(0,1)$. Then the sample we generate is $z_0 = \mu_0 + G_0 \e_0$. The KL Divergence between two multivariate normal distributions is given as
-\begin{align}
-\mathcal{D}_{KL}\left[\mathcal{N}(\mu_0, \Sigma_0) || \mathcal{N}(\mu_1, \Sigma_1)\right] = \frac{1}{2} \left(\text{tr}(\Sigma_1^{-1} \Sigma_0) + (\mu_1 - \mu_0)^T \Sigma_1^{-1} (\mu_1 - \mu_0) - k + \ln\left(\frac{\det \Sigma_1}{\det \Sigma_0} \right) \right)
-\label{kl_cov}
-\end{align}
-In our case, $\mu_1$ and $\Sigma_1$ are constant, since $\mathcal{N}(\mu_1, \Sigma_1)$ is the distribution we desire to fit out data to. So calculating $\Sigma_1^{-1}$ just one time shouldn't give any computational issues. However, notice that computing Equation \ref{kl_cov} requires $\ln(\det \Sigma_0)$. The matrix $\Sigma_0$ depends on the input $x_0$, as well as every weight and bias in the encoder. Since weights are often initiallized randomly, we need a clever way to ensure that $\det \Sigma_0 > 0$, regardless of the input or network parameters.
-
-To acheive this, for a latent distribution of dimension $K$, the encoder outputs $K + K(K+1)/2$ nodes. $K$ of these represent the mean vectore $\mu_0$, while the remaining $K(K+1)/2$ represent a lower triangular matrix $L_0$. In order to sample, we calculate the matrix exponential $G_0 = e^{L_0}$. Note that $G_0$ is lower triangular and nonsingular. We can then use the matrix $G_0$ to generate a sample to pass through the decoder.
-
-In our computation of KL Divergence, we use the same matrix $G_0$ to compute $\Sigma_0 = G_0 G_0^T$. From this construction, we have
-\begin{align*}
-\det \Sigma_0 &= \det(G_0 G_0^T) \\
-&= \det e^{L_0} \cdot \det (e^{L_0})^T \\
-&= e^{\text{tr}L_0} \cdot e^{\text{tr}L_0^T} \\
-&> 0
-\end{align*}
-This ensures that there will be no problems with computing Equation \ref{kl_cov} at any point during training. But we can also show that $\Sigma_0$ represents a covariance matrix, i.e., that $\Sigma_0$ is symmetric and positive definite.
-
-\begin{thm}
-$\Sigma_0$ under the previously described construction is symmetric and positive definite.
-\end{thm}
-\begin{proof}
-Consider any lower triangular $L_0 \in \R^{k \times k}$. Consider the matrix exponential 
-\[G_0 := e^{L_0} = \sum_{n=0}^\infty \frac{L_0^n}{n!} = I + L_0 + \frac{1}{2}L_0^2 + \cdots\]
-$G_0$ is lower triangular, since addition and multiplication of matrices preserve lower triangular. $G_0$ is also nonsingular, as $\det G_0 = \det e^{L_0} = e^{\tr L_0} \not = 0$.
-Set $\Sigma_0 := G_0 G_0^T$. Now for any nonzero $y \in \R^k$,
-\begin{align*}
-\langle \Sigma_0y, y \rangle = y^T \Sigma_0 y = y^T G_0 G_0^T y = \langle G_0^T y, G_0^T y \rangle = ||G_0^T y||_2^2 > 0
-\end{align*}
-
-\end{proof}
-
-
-## Code Examples of how to use the package
-### A demo on how to construct, train, and evaluate an ML2P-VAE model
+# Code Examples of how to use the package
+## A demo on how to construct, train, and evaluate an ML2P-VAE model
 ```{r}
 # Load data
-load('.\\data\\responses.rda')
-load('.\\data\\q_matrix.rda')
-load('.\\data\\correlation_matrix.rda')
+load('.\\..\\data\\responses.rda')
+load('.\\..\\data\\q_matrix.rda')
+load('.\\..\\data\\correlation_matrix.rda')
 data <- as.matrix(responses)
 Q <- as.matrix(q_matrix)
 cov <- as.matrix(correlation_matrix)
@@ -115,14 +116,31 @@ cov <- as.matrix(correlation_matrix)
 num_items <- as.double(dim(Q)[2])
 num_skills <- as.double(dim(Q)[1])
 num_students <- dim(data)[1]
-means <- rep(0,num_skills)
-enc_arch <- c(8L,8L,4L)
-enc_act <- c('tanh', 'tanh', 'tanh')
+means <- rep(0,num_skills) 
+enc_arch <- c(16L, 8L)
+enc_act <- c('relu', 'tanh')
 out_act <- 'sigmoid'
-kl <- 1.0
-
-# Construct ML2P-VAE model
-models <- build_vae_normal_full_covariance(num_items,
+kl <- 1
+```
+```{r}
+# Construct ML2P-VAE model assuming latent traits are independent
+models_ind <- build_vae_standard_normal(num_items,
+                                        num_skills,
+                                        Q,
+                                        model_type = 2,
+                                        enc_hid_arch = enc_arch,
+                                        hid_enc_activation = enc_act,
+                                        output_activation = out_act)
+encoder_ind <- models_ind[[1]]
+decoder_ind <- models_ind[[2]]
+vae_ind <- models_ind[[3]]
+encoder_ind
+decoder_ind
+vae_ind
+```
+```{r}
+# Construct ML2P-VAE model assuming correlated traits
+models_cor <- build_vae_normal_full_covariance(num_items,
                                            num_skills,
                                            Q,
                                            model_type = 2,
@@ -132,46 +150,102 @@ models <- build_vae_normal_full_covariance(num_items,
                                            hid_enc_activations = enc_act,
                                            output_activation = out_act,
                                            kl_weight = kl)
-encoder <- models[[1]]
-decoder <- models[[2]]
-vae <- models[[3]]
-
+encoder_cor <- models_cor[[1]]
+decoder_cor <- models_cor[[2]]
+vae_cor <- models_cor[[3]]
+encoder_cor
+decoder_cor
+vae_cor
+```
+```{r}
 # Training parameters
 num_train <- floor(0.85 * num_students)
 num_test <- num_students - num_train
 data_train <- data[1:num_train,]
 data_test <- data[(num_train+1):num_students,]
-num_epochs <- 20
+num_epochs <- 10
 batch_size <- 1
 
-# Train ML2P-VAE model
-keras::fit(object = vae,
+# Train ML2P-VAE models
+keras::fit(object = vae_ind,
            x = data_train,
            y = data_train,
            batch_size = batch_size,
            epochs = num_epochs,
            shuffle = FALSE,
-           verbose = 1)
-
-# Get parameter estimates
-decoder_params <- keras::get_weights(decoder)
-disc_est <- decoder_params[[1]]
-diff_est <- decoder_params[[2]]
-test_theta_est <- predict(encoder, data_test)[[1]]
-all_theta_est <- predict(encoder, data)[[1]]
-
+           verbose = 2)
+```
+```{r}
+keras::fit(object = vae_cor,
+           x = data_train,
+           y = data_train,
+           batch_size = batch_size,
+           epochs = num_epochs,
+           shuffle = FALSE,
+           verbose = 2)
+```
+```{r}
+# Get parameter estimates for independent assumption
+decoder_params_ind <- keras::get_weights(decoder_ind)
+disc_est_ind <- decoder_params_ind[[1]]
+diff_est_ind <- decoder_params_ind[[2]]
+test_theta_est_ind <- predict(encoder_ind, data_test)[[1]]
+all_theta_est_ind <- predict(encoder_ind, data)[[1]]
+```
+```{r}
+# Get parameter estimates for independent assumption
+decoder_params_cor <- keras::get_weights(decoder_cor)
+disc_est_cor <- decoder_params_cor[[1]]
+diff_est_cor <- decoder_params_cor[[2]]
+test_theta_est_cor <- predict(encoder_cor, data_test)[[1]]
+all_theta_est_cor <- predict(encoder_cor, data)[[1]]
+```
+```{r}
 # Load in true values
-load('.\\data\\disc_true.rda')
-load('.\\data\\diff_true.rda')
-load('.\\data\\theta_true.rda')
+load('.\\..\\data\\disc_true.rda')
+load('.\\..\\data\\diff_true.rda')
+load('.\\..\\data\\theta_true.rda')
 disc_true <- as.matrix(disc_true)
 diff_true <- as.matrix(diff_true)
 theta_true<- as.matrix(theta_true)
-
-# Evaluate ML2P-VAE model estimates
-matplot(t(disc_true), t(disc_est), pch = '*')
-plot(diff_true, diff_est)
-matplot(theta_true[1:500,], all_theta_est[1:500], pch = '*')
+```
+### Results assuming latent traits are independent
+```{r}
+# Evaluate ML2P-VAE model estimates (independent latent trait assumption)
+par(pty="s")
+matplot(t(disc_true), t(disc_est_ind), pch = '*',
+        xlim = c(0.05, 2), ylim = c(0.05, 2),
+        main = 'Discrimination Parameters',
+        xlab = 'True', ylab = 'Estimated')
+par(pty="s")
+plot(diff_true, diff_est_ind, pch = '*',
+     xlim = c(-3.1,3.1), ylim = c(-3.1,3.1),
+     main = 'Difficulty Parameters',
+     xlab = 'True', ylab = 'Estimated')
+par(pty="s")
+matplot(theta_true[1:200,], all_theta_est_ind[1:200,], pch = '*',
+        xlim = c(-3,3), ylim = c(-3,3),
+        main = 'Ability Parameters',
+        xlab = 'True', ylab = 'Estimated')
+```
+### Results assuming latent traits are correlated
+```{r}
+# Evaluate ML2P-VAE model estimates (correlated latent trait assumption)
+par(pty="s")
+matplot(t(disc_true), t(disc_est_cor), pch = '*',
+        xlim = c(0.05, 2), ylim = c(0.05, 2),
+        main = 'Discrimination Parameters',
+        xlab = 'True', ylab = 'Estimated')
+par(pty="s")
+plot(diff_true, diff_est_cor, pch = '*',
+     xlim = c(-3.1,3.1), ylim = c(-3.1,3.1),
+     main = 'Difficulty Parameters',
+     xlab = 'True', ylab = 'Estimated')
+par(pty="s")
+matplot(theta_true[1:200,], all_theta_est_cor[1:200,], pch = '*',
+        xlim = c(-3,3), ylim = c(-3,3),
+        main = 'Ability Parameters',
+        xlab = 'True', ylab = 'Estimated')
 ```
 
 ```{r, include = FALSE}
@@ -184,6 +258,12 @@ knitr::opts_chunk$set(
 \begin{thebibliography}{2}
 
 \bibitem{thissen} Wainer and Thissen, D. ``Test Scoring''. Erlbaum Associates, Publishers, 2001.
+
+\bibitem{kingma} Kingma and Welling. ``Auto-Encoding Variational Bayes.'' In proceedings of The International Conference on Learning Representations, 2014.
+
+\bibitem{curi2019} Curi, Converse, Hajewski, Oliveira. ``Interpretable Variational Autoencoders for Cognitive Models.'' In proceedings of the International Joint Conference on Neural Networks, 2019.
+
+\bibitem{ae_v_vae} Converse, Curi, Oliveira. ``Autoencoders for Educational Assessment.'' In proceedings of the Conference for Artificial Intelligence in Education (AIED), 2019.
 
 \end{thebibliography}
 
