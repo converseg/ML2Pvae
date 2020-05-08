@@ -102,12 +102,15 @@ Every argument from `build_vae_standard_normal` is also included in `build_vae_n
 The default settings for these two arguments specify a $\mathcal{N}(0,I)$ distribution, but this method should never be used as such. Though it will work, `build_vae_standard_normal` will build a more efficient and more accurate model for assuming independent latent abilities. `build_vae_full_covariance` is most effectively used when these parameters specify a more compilcated distribution, such as $\mathcal{N}(\mu, \Sigma)$ or $\mathcal{N}(0, \Sigma)$.
 
 # Code Examples of how to use the package
+In this section, an example script is given showing how to construct, train, and evaluate an ML2P-VAE model. The data is from a simulated 30 item exam which assesses 3 latent traits. The latent abilities for 5000 students were sampled from $\mathcal{N}(0, \Sigma)$, where $\Sigma$ specifies the correlations between the 3 abilities. Discrimination and difficulty paramters were sampled uniformly from $[0.25, 1.75]$ and $[-3,3]$ respectively, and entries in the Q-matrix were sampled from Bern(0.35). All of these data files are included in the package. Probabilities for each student answering each question correctly were calculated with the ML2P model \cite{mckinley}. These probabilities were sampled from to generate a response to each item on the assessment for each student.
+
+Two ML2P-VAE models are constructed. The first uses `build_vae_standard_normal`, and assumes that the latent traits are independent of on another. We know that for the data provided, this assumption is false - as the responses were generated dependent on the matrix $\Sigma$. But `build_vae_standard_normal` can be useful if the true correlations between latent traits are not known, i.e. `correlation_matrix` is not given. 
+
+The second ML2P-VAE model makes stronger assumptions - that the exact relationship between abilities is known (and given). `build_vae_normal_full_covariance` encodes the response set to reflect the known correlations. On this data, it is unsurprising that this model yields better results than the first model, since it uses additional information about the distribution of the latent traits.
+
 ## A demo on how to construct, train, and evaluate an ML2P-VAE model
 ```{r}
 # Load data
-load('.\\..\\data\\responses.rda')
-load('.\\..\\data\\q_matrix.rda')
-load('.\\..\\data\\correlation_matrix.rda')
 data <- as.matrix(responses)
 Q <- as.matrix(q_matrix)
 cov <- as.matrix(correlation_matrix)
@@ -139,7 +142,7 @@ decoder_ind
 vae_ind
 ```
 ```{r}
-# Construct ML2P-VAE model assuming correlated traits
+# Construct ML2P-VAE model assuming correlation among traits is known
 models_cor <- build_vae_normal_full_covariance(num_items,
                                            num_skills,
                                            Q,
@@ -159,14 +162,15 @@ vae_cor
 ```
 ```{r}
 # Training parameters
-num_train <- floor(0.85 * num_students)
+num_train <- floor(0.8 * num_students)
 num_test <- num_students - num_train
 data_train <- data[1:num_train,]
 data_test <- data[(num_train+1):num_students,]
-num_epochs <- 10
+num_epochs <- 12
 batch_size <- 1
-
-# Train ML2P-VAE models
+```
+```{r}
+# Train ML2P-VAE model assuming traits are independent
 keras::fit(object = vae_ind,
            x = data_train,
            y = data_train,
@@ -176,6 +180,7 @@ keras::fit(object = vae_ind,
            verbose = 2)
 ```
 ```{r}
+# Train ML2P-VAE model assuming correlation among traits is known
 keras::fit(object = vae_cor,
            x = data_train,
            y = data_train,
@@ -185,7 +190,7 @@ keras::fit(object = vae_cor,
            verbose = 2)
 ```
 ```{r}
-# Get parameter estimates for independent assumption
+# Get parameter estimates for independent traits assumption
 decoder_params_ind <- keras::get_weights(decoder_ind)
 disc_est_ind <- decoder_params_ind[[1]]
 diff_est_ind <- decoder_params_ind[[2]]
@@ -193,7 +198,7 @@ test_theta_est_ind <- predict(encoder_ind, data_test)[[1]]
 all_theta_est_ind <- predict(encoder_ind, data)[[1]]
 ```
 ```{r}
-# Get parameter estimates for independent assumption
+# Get parameter estimates for correlated traits assumption
 decoder_params_cor <- keras::get_weights(decoder_cor)
 disc_est_cor <- decoder_params_cor[[1]]
 diff_est_cor <- decoder_params_cor[[2]]
@@ -202,16 +207,15 @@ all_theta_est_cor <- predict(encoder_cor, data)[[1]]
 ```
 ```{r}
 # Load in true values
-load('.\\..\\data\\disc_true.rda')
-load('.\\..\\data\\diff_true.rda')
-load('.\\..\\data\\theta_true.rda')
 disc_true <- as.matrix(disc_true)
 diff_true <- as.matrix(diff_true)
 theta_true<- as.matrix(theta_true)
 ```
+
 ### Results assuming latent traits are independent
+
 ```{r}
-# Evaluate ML2P-VAE model estimates (independent latent trait assumption)
+# Examine ML2P-VAE model estimates (independent latent traits assumption)
 par(pty="s")
 matplot(t(disc_true), t(disc_est_ind), pch = '*',
         xlim = c(0.05, 2), ylim = c(0.05, 2),
@@ -223,14 +227,16 @@ plot(diff_true, diff_est_ind, pch = '*',
      main = 'Difficulty Parameters',
      xlab = 'True', ylab = 'Estimated')
 par(pty="s")
-matplot(theta_true[1:200,], all_theta_est_ind[1:200,], pch = '*',
+matplot(theta_true[4200:4400,], all_theta_est_ind[4200:4400,], pch = '*',
         xlim = c(-3,3), ylim = c(-3,3),
         main = 'Ability Parameters',
         xlab = 'True', ylab = 'Estimated')
 ```
+
 ### Results assuming latent traits are correlated
+
 ```{r}
-# Evaluate ML2P-VAE model estimates (correlated latent trait assumption)
+# Examine ML2P-VAE model estimates (correlated latent traits assumption)
 par(pty="s")
 matplot(t(disc_true), t(disc_est_cor), pch = '*',
         xlim = c(0.05, 2), ylim = c(0.05, 2),
@@ -242,7 +248,7 @@ plot(diff_true, diff_est_cor, pch = '*',
      main = 'Difficulty Parameters',
      xlab = 'True', ylab = 'Estimated')
 par(pty="s")
-matplot(theta_true[1:200,], all_theta_est_cor[1:200,], pch = '*',
+matplot(theta_true[4200:4400,], all_theta_est_cor[4200:4400,], pch = '*',
         xlim = c(-3,3), ylim = c(-3,3),
         main = 'Ability Parameters',
         xlab = 'True', ylab = 'Estimated')
@@ -257,13 +263,15 @@ knitr::opts_chunk$set(
 
 \begin{thebibliography}{2}
 
-\bibitem{thissen} Wainer and Thissen, D. ``Test Scoring''. Erlbaum Associates, Publishers, 2001.
-
-\bibitem{kingma} Kingma and Welling. ``Auto-Encoding Variational Bayes.'' In proceedings of The International Conference on Learning Representations, 2014.
+\bibitem{ae_v_vae} Converse, Curi, Oliveira. ``Autoencoders for Educational Assessment.'' In proceedings of the Conference for Artificial Intelligence in Education (AIED), 2019.
 
 \bibitem{curi2019} Curi, Converse, Hajewski, Oliveira. ``Interpretable Variational Autoencoders for Cognitive Models.'' In proceedings of the International Joint Conference on Neural Networks, 2019.
 
-\bibitem{ae_v_vae} Converse, Curi, Oliveira. ``Autoencoders for Educational Assessment.'' In proceedings of the Conference for Artificial Intelligence in Education (AIED), 2019.
+\bibitem{kingma} Kingma and Welling. ``Auto-Encoding Variational Bayes.'' In proceedings of The International Conference on Learning Representations, 2014.
+
+\bibitem{mckinley} McKinley and Reckase. ``The use of the General Rasch Model with Multidimensional Item Response Data.'' American College Testing, 1980.
+
+\bibitem{thissen} Thissen and Wainer ``Test Scoring''. Erlbaum Associates, Publishers, 2001.
 
 \end{thebibliography}
 
