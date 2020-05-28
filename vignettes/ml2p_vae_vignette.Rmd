@@ -44,7 +44,7 @@ where the discrimination parameters $\vec a_i^\top = (a_{ik})_{1\leq k\leq K}$ d
 In application, we often only have response vectors for a set of students - so we need to estimate the ability parameters $\Theta_j$ for each student, along with the discrimination and difficulty parameters for each item. While there are many parameter estimation methods, including the Expectation-Maximization algorithm and various MCMC methods, many of them become infeasible as the number of latent traits increases beyond $\dim(\Theta_j) = 7$.
 
 
-## ML2P-VAE Description
+# ML2P-VAE Description
 Certain modifications to the typical VAE architecture \cite{kingma} are required in order to be used as parameter estimation methods. First, there are no hidden layers in the decoder. Instead, the non-zero weights in the decoder, are determined by a given $Q$-matrix. These connect the encoded distribution layer directly to the output layer. The output layer must use the sigmoidal activation function,
 \begin{equation}
     \sigma(z_i) = \frac{1}{1 + e^{-z_i}}
@@ -101,14 +101,14 @@ Every argument from `build_vae_standard_normal` is also included in `build_vae_n
 
 The default settings for these two arguments specify a $\mathcal{N}(0,I)$ distribution, but this method should never be used as such. Though it will work, `build_vae_standard_normal` will build a more efficient and more accurate model for assuming independent latent abilities. `build_vae_full_covariance` is most effectively used when these parameters specify a more compilcated distribution, such as $\mathcal{N}(\mu, \Sigma)$ or $\mathcal{N}(0, \Sigma)$.
 
-# Code Examples of how to use the package
+# Examples
 In this section, an example script is given showing how to construct, train, and evaluate an ML2P-VAE model. The data is from a simulated 30 item exam which assesses 3 latent traits. The latent abilities for 5000 students were sampled from $\mathcal{N}(0, \Sigma)$, where $\Sigma$ specifies the correlations between the 3 abilities. Discrimination and difficulty paramters were sampled uniformly from $[0.25, 1.75]$ and $[-3,3]$ respectively, and entries in the Q-matrix were sampled from Bern(0.35). All of these data files are included in the package. Probabilities for each student answering each question correctly were calculated with the ML2P model \cite{mckinley}. These probabilities were sampled from to generate a response to each item on the assessment for each student.
 
 Two ML2P-VAE models are constructed. The first uses `build_vae_standard_normal`, and assumes that the latent traits are independent of on another. We know that for the data provided, this assumption is false - as the responses were generated dependent on the matrix $\Sigma$. But `build_vae_standard_normal` can be useful if the true correlations between latent traits are not known, i.e. `correlation_matrix` is not given. 
 
 The second ML2P-VAE model makes stronger assumptions - that the exact relationship between abilities is known (and given). `build_vae_normal_full_covariance` encodes the response set to reflect the known correlations. On this data, it is unsurprising that this model yields better results than the first model, since it uses additional information about the distribution of the latent traits.
 
-## A demo on how to construct, train, and evaluate an ML2P-VAE model
+## A demo on constructing, training, and evaluating an ML2P-VAE model
 ```{r}
 # Load data
 data <- as.matrix(responses)
@@ -253,6 +253,8 @@ matplot(theta_true[4200:4400,], all_theta_est_cor[4200:4400,], pch = '*',
         main = 'Ability Parameters',
         xlab = 'True', ylab = 'Estimated')
 ```
+
+
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
