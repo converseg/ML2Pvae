@@ -80,8 +80,8 @@ build_vae_normal_full_covariance <- function(num_items,
                                              num_items)
   keras::compile(vae,
                  optimizer = keras::optimizer_adam(),
-                 loss = vae_loss,
-                 experimental_run_tf_function=FALSE
+                 loss = vae_loss#,
+                 # experimental_run_tf_function=FALSE
                  )
   list(encoder, decoder, vae)
 }
