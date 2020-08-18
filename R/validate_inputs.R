@@ -10,6 +10,7 @@
 #' @param hid_enc_activations a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}
 #' @param output_activation a string specifying the activation function in the output of the decoder; the ML2P model alsways used 'sigmoid'
 #' @param kl_weight an optional weight for the KL divergence term in the loss function
+#'
 validate_inputs <- function(num_items,
                             num_skills,
                             Q_matrix,

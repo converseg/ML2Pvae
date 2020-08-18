@@ -31,7 +31,7 @@ build_vae_normal_full_covariance <- function(num_items,
                                              enc_hid_arch = c(ceiling((num_items + num_skills)/2)),
                                              hid_enc_activations = rep('sigmoid', length(enc_hid_arch)),
                                              output_activation = 'sigmoid',
-                                             kl_weight = 1){
+                                             kl_weight = 1){#TODO: remove kl weight from building
   validate_inputs(num_items,
                   num_skills,
                   Q_matrix,
@@ -70,18 +70,22 @@ build_vae_normal_full_covariance <- function(num_items,
   output <- decoder(encoder(input)[3])
 
   vae <- keras::keras_model(input, output)
+  my_optimizer <- keras::optimizer_adam()
   b <- tfprobability::tfb_fill_triangular(upper=FALSE)
+  f <- b$forward(z_log_cholesky)
   vae_loss <- vae_loss_normal_full_covariance(z_mean,
-                                             b$forward(z_log_cholesky),
+                                             f,
                                              inv_skill_cov,
                                              det_skill_cov,
                                              skill_mean,
                                              kl_weight,
-                                             num_items)
+                                             num_items) #issue somewhere in loss
+  # vae_loss <- keras::loss_binary_crossentropy
+  #TODO: do I need to compile?
   keras::compile(vae,
-                 optimizer = keras::optimizer_adam(),
-                 loss = vae_loss#,
-                 # experimental_run_tf_function=FALSE
+                 optimizer = my_optimizer,
+                 loss = vae_loss,
+                 experimental_run_tf_function=FALSE
                  )
   list(encoder, decoder, vae)
 }
