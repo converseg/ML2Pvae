@@ -14,7 +14,7 @@ Imports:
     tensorflow (>= 2.0),
     keras,
     tfprobability (>= 0.9)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Suggests: 
     knitr,
     rmarkdown,
