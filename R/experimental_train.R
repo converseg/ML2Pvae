@@ -8,6 +8,7 @@
 #' @param learning_rate the learning rate used for the adam optimizer
 #' @param kl_weight weight for KL Divergence
 #' @param verbose level of console output
+#' @export
 fit_standard_model <- function(encoder,
                       decoder,
                       vae,
@@ -60,6 +61,7 @@ fit_standard_model <- function(encoder,
 #' @param learning_rate the learning rate used for the adam optimizer
 #' @param kl_weight weight for KL Divergence
 #' @param verbose level of console output
+#' @export
 fit_full_cov_model <- function(encoder,
                                decoder,
                                vae,

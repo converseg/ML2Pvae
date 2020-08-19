@@ -2,3 +2,5 @@
 
 export(build_vae_normal_full_covariance)
 export(build_vae_standard_normal)
+export(fit_full_cov_model)
+export(fit_standard_model)
