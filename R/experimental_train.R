@@ -17,19 +17,25 @@ fit_standard_model <- function(encoder,
                       learning_rate = 0.001,
                       kl_weight = 1,
                       verbose = 1){
+  num_train <- nrow(train_data)
   num_items <- ncol(train_data)
   optimizer <- keras::optimizer_adam(lr = learning_rate)
   loss_function <- experimental_standard_loss
   #TODO: figure out how to show a metric
   # loss_metric <- keras::metric_mean_squared_error
-  # print(train_data)
-  
   for(epoch in 1:num_epochs){
-    if(verbose == 1){cat('Epoch', epoch, '/', num_epochs, '\n')}
-    #TODO print out loss for each epoch
-    for(step in 1:nrow(train_data)){#TODO: batch size
-      #TODO: progress bar (tqdm?)
-      #TODO: verbose
+    if(verbose >= 1){cat('Epoch', epoch, '/', num_epochs, '\n')}
+    if(verbose == 1){
+      pb <- progress::progress_bar$new(
+        format = " [:bar] Elapsed: :elapsed ETA: :eta",
+        total = num_train,
+        width = 80,
+        clear = FALSE)
+      pb$tick(0)
+    }
+    summed_loss <- 0
+    for(step in 1:num_train){#TODO: batch size
+      if(verbose == 1){pb$tick()}
       responses <- train_data[step,]
       with(tape <- tensorflow::tf$GradientTape(persistent = TRUE),{
         tape$watch(vae$trainable_weights)
@@ -41,11 +47,13 @@ fit_standard_model <- function(encoder,
         y_pred <- decoder(z_sample)
         loss <- loss_function(z_mean, z_log_var, kl_weight, num_items, responses, y_pred)
       })
+      summed_loss <- summed_loss + tensorflow::tf$keras$backend$get_value(loss)
       grads <- tape$gradient(loss, vae$trainable_variables)
       optimizer$apply_gradients(Map(c, grads, vae$trainable_variables))
       #TODO: figure out metric
       # loss_metric(loss)
     }
+    if(verbose >= 1){cat(' Loss:', summed_loss/num_train, '\n')}
   }
 }
 
@@ -72,6 +80,7 @@ fit_full_cov_model <- function(encoder,
                                learning_rate = 0.001,
                                kl_weight = 1,
                                verbose = 1){
+  num_train <- nrow(train_data)
   num_skills <- length(mean_vector)
   num_items <- ncol(train_data)
   det_skill_cov <- tensorflow::tf$constant(det(cov_matrix), dtype = 'float32')
@@ -81,13 +90,19 @@ fit_full_cov_model <- function(encoder,
   loss_function <- experimental_full_cov_loss
   b <- tfprobability::tfb_fill_triangular(upper=FALSE)
   # loss_metric <- keras::metric_mean_squared_error
-
   for(epoch in 1:num_epochs){
-    if(verbose == 1){cat('Epoch', epoch, '/', num_epochs,'\n')}
-    #TODO: print loss for each epoch
-    for(step in 1:nrow(train_data)){#TODO: batch size
-      #TODO: progress bar (tqdm?)
-      #TODO: verbose
+    if(verbose >= 1){cat('Epoch', epoch, '/', num_epochs, '\n')}
+    if(verbose == 1){
+      pb <- progress::progress_bar$new(
+        format = " [:bar] Elapsed: :elapsed ETA: :eta",
+        total = num_train,
+        width = 80,
+        clear = FALSE)
+      pb$tick(0)
+    }
+    summed_loss <- 0
+    for(step in 1:num_train){#TODO: batch size
+      if(verbose == 1){pb$tick()}
       responses <- train_data[step,]
       with(tape <- tensorflow::tf$GradientTape(persistent = TRUE),{
         tape$watch(vae$trainable_weights)
@@ -101,9 +116,11 @@ fit_full_cov_model <- function(encoder,
         loss <- loss_function(z_mean, f, inv_skill_cov, det_skill_cov, skill_mean,
                               kl_weight, num_items, responses, y_pred)
       })
+      summed_loss <- summed_loss + tensorflow::tf$keras$backend$get_value(loss)
       grads <- tape$gradient(loss, vae$trainable_variables)
       optimizer$apply_gradients(Map(c, grads, vae$trainable_variables))
       # loss_metric(loss)
     }
+    if(verbose >= 1){cat(' Loss:', summed_loss/num_train, '\n')}
   }
 }
