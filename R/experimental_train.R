@@ -14,12 +14,16 @@ fit_standard_model <- function(encoder,
                       vae,
                       train_data,
                       num_epochs = 10,
+                      batch_size = 1L,
                       learning_rate = 0.001,
                       kl_weight = 1,
                       verbose = 1){
   num_train <- nrow(train_data)
   num_items <- ncol(train_data)
   optimizer <- keras::optimizer_adam(lr = learning_rate)
+  dataset <- tensorflow::tf$data$Dataset$from_tensor_slices(train_data)
+  dataset$batch(batch_size)
+  print(dataset)
   loss_function <- experimental_standard_loss
   #TODO: figure out how to show a metric
   # loss_metric <- keras::metric_mean_squared_error
@@ -37,8 +41,8 @@ fit_standard_model <- function(encoder,
     for(step in 1:num_train){#TODO: batch size
       if(verbose == 1){pb$tick()}
       responses <- train_data[step,]
-      with(tape <- tensorflow::tf$GradientTape(persistent = TRUE),{
-        tape$watch(vae$trainable_weights)
+      with(tape <- tensorflow::tf$GradientTape(persistent = TRUE),{ #don't know if I need persistent=TRUE
+        # tape$watch(vae$trainable_weights) #don't know if this needs to be watched
         #TODO: separate function for calc loss??
         outputs <- encoder(t(responses))
         z_mean <- outputs[[1]]
@@ -105,7 +109,7 @@ fit_full_cov_model <- function(encoder,
       if(verbose == 1){pb$tick()}
       responses <- train_data[step,]
       with(tape <- tensorflow::tf$GradientTape(persistent = TRUE),{
-        tape$watch(vae$trainable_weights)
+        # tape$watch(vae$trainable_weights)
         #TODO: separate function for calc loss??
         outputs <- encoder(t(responses))
         z_mean <- outputs[[1]]

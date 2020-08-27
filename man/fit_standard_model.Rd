@@ -10,6 +10,7 @@ fit_standard_model(
   vae,
   train_data,
   num_epochs = 10,
+  batch_size = 1L,
   learning_rate = 0.001,
   kl_weight = 1,
   verbose = 1
