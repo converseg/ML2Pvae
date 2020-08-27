@@ -16,7 +16,6 @@ sampling_standard_normal <- function(arg){
 #' A reparameterization in order to sample from the learned multivariate normal distribution of the VAE
 #'
 #' @param arg a layer of tensors representing the mean and log cholesky transform of the covariance matrix
-# tensorflow::tf_function(
 sampling_normal_full_covariance <- function(arg){
   num_skills <- as.integer(-1.5 + sqrt(2 * keras::k_int_shape(arg)[[2]] + 9/4))
   z_mean <- arg[, 1:(num_skills)]
@@ -27,19 +26,17 @@ sampling_normal_full_covariance <- function(arg){
   b <- tfprobability::tfb_fill_triangular(upper=FALSE)
   z_log_cholesky <- b$forward(
     arg[1:b_size, (num_skills + 1):(keras::k_int_shape(arg)[[2]])])
-  z_cholesky <- tensorflow::tf$linalg$expm(z_log_cholesky) #maybe issue here
+  z_cholesky <- tensorflow::tf$linalg$expm(z_log_cholesky)
   eps <- keras::k_random_normal(
     shape = c(b_size, num_skills, 1),
     mean = 0, stddev = 1
   )
   z_mean + keras::k_reshape(tensorflow::tf$matmul(z_cholesky, eps), shape = c(-1, num_skills))
 }
-# )
 
 #' A custom kernel constraint function that restricts weights between the learned distribution and output. Nonzero weights are determined by the Q matrix
 #'
 #' @param Q a binary matrixof size \code{num_skills} by \code{num_items}
-#'
 q_constraint <- function(Q){
   constraint <- function(w){
     target <- w * Q
@@ -50,7 +47,6 @@ q_constraint <- function(Q){
   constraint
 }
 
-#'
 q_1pl_constraint <- function(Q){
   constraint <- function(w){
     Q # require all weights = 1 according to Q matrix so VAE will esimate 1-parameter logistic model
