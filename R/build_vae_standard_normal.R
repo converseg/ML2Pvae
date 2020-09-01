@@ -58,11 +58,9 @@ build_vae_standard_normal <- function(num_items,
   decoder <- keras::keras_model(latent_inputs, out)
   output <- decoder(encoder(input)[3])
   vae <- keras::keras_model(input, output)
-  vae_loss <- vae_loss_standard_normal(z_mean, z_log_var, kl_weight, num_items)
+  vae_loss <- vae_loss_standard_normal(encoder, kl_weight, num_items)
   keras::compile(vae,
                  optimizer = keras::optimizer_adam(),
-                 loss = vae_loss#,
-                 # experimental_run_tf_function=FALSE
-                )
+                 loss = vae_loss)
   list(encoder, decoder, vae)
 }

@@ -2,3 +2,4 @@
 
 export(build_vae_normal_full_covariance)
 export(build_vae_standard_normal)
+export(train_model)
