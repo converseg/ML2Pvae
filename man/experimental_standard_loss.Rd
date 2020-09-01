@@ -2,7 +2,7 @@
 % Please edit documentation in R/loss_functions.R
 \name{experimental_standard_loss}
 \alias{experimental_standard_loss}
-\title{A loss function for a VAE learning a standard normal distribution for use with custom training}
+\title{This function is deprecated and will be removed in future versions. A loss function for a VAE learning a standard normal distribution for use with custom training}
 \usage{
 experimental_standard_loss(
   z_mean,
@@ -23,5 +23,5 @@ experimental_standard_loss(
 \item{rec_dim}{the number of nodes in the input/output of the VAE}
 }
 \description{
-A loss function for a VAE learning a standard normal distribution for use with custom training
+This function is deprecated and will be removed in future versions. A loss function for a VAE learning a standard normal distribution for use with custom training
 }

@@ -1,4 +1,4 @@
-#' Fit standard normal models with gradient tape rather than keras
+#' This is deprecated and will be removed in future versions. Fit standard normal models with gradient tape rather than keras
 #'
 #' @param encoder a compiled keras model
 #' @param decoder a compiled keras model
@@ -17,7 +17,7 @@ fit_standard_model <- function(encoder,
                       batch_size = 1L,
                       learning_rate = 0.001,
                       kl_weight = 1,
-                      verbose = 1){
+                      verbose = 1){ #TODO: delete this function
   num_train <- nrow(train_data)
   num_items <- ncol(train_data)
   optimizer <- keras::optimizer_adam(lr = learning_rate)
@@ -61,7 +61,7 @@ fit_standard_model <- function(encoder,
   }
 }
 
-#' Fit full covariacne models with gradient tape rather than keras
+#' This is deprecated and will be removed in future versions. Fit full covariacne models with gradient tape rather than keras
 #'
 #' @param encoder a compiled keras model
 #' @param decoder a compiled keras model
@@ -83,7 +83,7 @@ fit_full_cov_model <- function(encoder,
                                num_epochs = 10,
                                learning_rate = 0.001,
                                kl_weight = 1,
-                               verbose = 1){
+                               verbose = 1){ #TODO: delete this function
   num_train <- nrow(train_data)
   num_skills <- length(mean_vector)
   num_items <- ncol(train_data)

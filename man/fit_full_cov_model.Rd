@@ -2,7 +2,7 @@
 % Please edit documentation in R/experimental_train.R
 \name{fit_full_cov_model}
 \alias{fit_full_cov_model}
-\title{Fit full covariacne models with gradient tape rather than keras}
+\title{This is deprecated and will be removed in future versions. Fit full covariacne models with gradient tape rather than keras}
 \usage{
 fit_full_cov_model(
   encoder,
@@ -39,5 +39,5 @@ fit_full_cov_model(
 \item{verbose}{level of console output}
 }
 \description{
-Fit full covariacne models with gradient tape rather than keras
+This is deprecated and will be removed in future versions. Fit full covariacne models with gradient tape rather than keras
 }

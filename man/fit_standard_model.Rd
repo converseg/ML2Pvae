@@ -2,7 +2,7 @@
 % Please edit documentation in R/experimental_train.R
 \name{fit_standard_model}
 \alias{fit_standard_model}
-\title{Fit standard normal models with gradient tape rather than keras}
+\title{This is deprecated and will be removed in future versions. Fit standard normal models with gradient tape rather than keras}
 \usage{
 fit_standard_model(
   encoder,
@@ -34,5 +34,5 @@ fit_standard_model(
 \item{verbose}{level of console output}
 }
 \description{
-Fit standard normal models with gradient tape rather than keras
+This is deprecated and will be removed in future versions. Fit standard normal models with gradient tape rather than keras
 }

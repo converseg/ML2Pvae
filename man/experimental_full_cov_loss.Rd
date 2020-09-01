@@ -2,7 +2,7 @@
 % Please edit documentation in R/loss_functions.R
 \name{experimental_full_cov_loss}
 \alias{experimental_full_cov_loss}
-\title{A custom loss function for a VAE learning a multivariate normal distribution with a full covariance matrix for use with custom training}
+\title{This function is deprecated and will be removed in future versions. A custom loss function for a VAE learning a multivariate normal distribution with a full covariance matrix for use with custom training}
 \usage{
 experimental_full_cov_loss(
   z_mean,
@@ -36,5 +36,5 @@ experimental_full_cov_loss(
 \item{y_pred}{the output of the VAE}
 }
 \description{
-A custom loss function for a VAE learning a multivariate normal distribution with a full covariance matrix for use with custom training
+This function is deprecated and will be removed in future versions. A custom loss function for a VAE learning a multivariate normal distribution with a full covariance matrix for use with custom training
 }

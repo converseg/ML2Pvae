@@ -56,7 +56,7 @@ vae_loss_normal_full_covariance <- function(encoder,
   loss
 }
 
-#' A loss function for a VAE learning a standard normal distribution for use with custom training
+#' This function is deprecated and will be removed in future versions. A loss function for a VAE learning a standard normal distribution for use with custom training
 #'
 #' @param z_mean a tensor (layer) representing the mean in the VAE
 #' @param z_log_var a tensor (layer) representing the log variance in the VAE
@@ -67,7 +67,7 @@ experimental_standard_loss <- function(z_mean,
                                        kl_weight,
                                        rec_dim,
                                        y_true,
-                                       y_pred){
+                                       y_pred){ #TODO: delete this function
   squared <- keras::k_square(z_mean)
   exponential <- keras::k_exp(z_log_var)
   value <- squared + exponential - 1 - z_log_var
@@ -78,7 +78,7 @@ experimental_standard_loss <- function(z_mean,
   vae_loss
 }
 
-#' A custom loss function for a VAE learning a multivariate normal distribution with a full covariance matrix for use with custom training
+#' This function is deprecated and will be removed in future versions. A custom loss function for a VAE learning a multivariate normal distribution with a full covariance matrix for use with custom training
 #'
 #' @param z_mean a tensor (layer) representing the mean in the VAE
 #' @param z_log_cholesky a tensor (layer) reshaped into a lower triangular matrix, representing the log cholesky matrix in the VAE
@@ -97,7 +97,7 @@ experimental_full_cov_loss <- function(z_mean,
                                        kl_weight,
                                        rec_dim,
                                        y_true,
-                                       y_pred){
+                                       y_pred){ #TODO: delete this function
   z_cholesky <- tensorflow::tf$linalg$expm(z_log_cholesky)
   z_cov_matrix <- tensorflow::tf$matmul(z_cholesky, tensorflow::tf$transpose(z_cholesky, c(0L, 2L, 1L)))
   num_skills <- keras::k_int_shape(skill_mean)[[2]]
