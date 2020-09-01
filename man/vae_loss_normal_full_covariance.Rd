@@ -5,8 +5,7 @@
 \title{A custom loss function for a VAE learning a multivariate normal distribution with a full covariance matrix}
 \usage{
 vae_loss_normal_full_covariance(
-  z_mean,
-  z_log_cholesky,
+  encoder,
   inv_skill_cov,
   det_skill_cov,
   skill_mean,
@@ -15,9 +14,7 @@ vae_loss_normal_full_covariance(
 )
 }
 \arguments{
-\item{z_mean}{a tensor (layer) representing the mean in the VAE}
-
-\item{z_log_cholesky}{a tensor (layer) reshaped into a lower triangular matrix, representing the log cholesky matrix in the VAE}
+\item{encoder}{the encoder model of the VAE, used to obtain z_mean and z_log_cholesky from inputs}
 
 \item{inv_skill_cov}{a constant tensor matrix of the inverse of the covariance matrix being learned}
 

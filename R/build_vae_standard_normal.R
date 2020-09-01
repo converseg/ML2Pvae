@@ -24,7 +24,7 @@ build_vae_standard_normal <- function(num_items,
                                       enc_hid_arch=c(ceiling((num_items + num_skills)/2)),
                                       hid_enc_activations=rep('sigmoid', length(enc_hid_arch)),
                                       output_activation='sigmoid',
-                                      kl_weight=1){#TODO: remove kl weight from building
+                                      kl_weight=1){
   validate_inputs(num_items,
                              num_skills,
                              Q_matrix,
@@ -57,15 +57,11 @@ build_vae_standard_normal <- function(num_items,
                             name = 'vae_out')
   decoder <- keras::keras_model(latent_inputs, out)
   output <- decoder(encoder(input)[3])
+
   vae <- keras::keras_model(input, output)
-  my_optimizer <- keras::optimizer_adam()
-  vae_loss <- vae_loss_standard_normal(z_mean, z_log_var, kl_weight, num_items)
-  # vae_loss <- keras::loss_binary_crossentropy
-  #TODO: do I need to compile this with the loss fcn?
+  vae_loss <- vae_loss_standard_normal(encoder, kl_weight, num_items)
   keras::compile(vae,
-                 optimizer = my_optimizer,
-                 loss = vae_loss,
-                 experimental_run_tf_function=FALSE
-                )
+                 optimizer = keras::optimizer_adam(),
+                 loss = vae_loss)
   list(encoder, decoder, vae)
 }
