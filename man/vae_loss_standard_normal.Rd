@@ -4,12 +4,10 @@
 \alias{vae_loss_standard_normal}
 \title{A custom loss function for a VAE learning a standard normal distribution}
 \usage{
-vae_loss_standard_normal(z_mean, z_log_var, kl_weight, rec_dim)
+vae_loss_standard_normal(encoder, kl_weight, rec_dim)
 }
 \arguments{
-\item{z_mean}{a tensor (layer) representing the mean in the VAE}
-
-\item{z_log_var}{a tensor (layer) representing the log variance in the VAE}
+\item{encoder}{the encoder model of the VAE, used to obtain z_mean and z_log_var from inputs}
 
 \item{kl_weight}{weight for the KL divergence term}
 

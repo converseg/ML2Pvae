@@ -1,9 +1,9 @@
 #' A custom loss function for a VAE learning a standard normal distribution
 #'
-#' @param z_mean a tensor (layer) representing the mean in the VAE
-#' @param z_log_var a tensor (layer) representing the log variance in the VAE
+#' @param encoder the encoder model of the VAE, used to obtain z_mean and z_log_var from inputs
 #' @param kl_weight weight for the KL divergence term
 #' @param rec_dim the number of nodes in the input/output of the VAE
+<<<<<<< HEAD
 vae_loss_standard_normal <- function(z_mean, z_log_var, kl_weight, rec_dim){
   loss <- function(y_true, y_pred){
     squared <- keras::k_square(z_mean)
@@ -14,6 +14,20 @@ vae_loss_standard_normal <- function(z_mean, z_log_var, kl_weight, rec_dim){
     # kl_loss <- keras::k_sum(z_log_var, axis = -1L)
     rec_loss <- rec_dim * keras::loss_binary_crossentropy(y_true, y_pred)
     kl_weight * keras::k_mean(kl_loss + rec_loss) #this should work fine
+=======
+vae_loss_standard_normal <- function(encoder, kl_weight, rec_dim){
+  loss <- function(input, output){
+    vals <- encoder(input)
+    z_mean_val <- vals[1]
+    z_log_var_val <- vals[2]
+    kl_loss <- 0.5 * keras::k_sum(keras::k_square(z_mean_val) +
+                                    keras::k_exp(z_log_var_val) -
+                                    1 -
+                                    z_log_var_val,
+                                    axis = -1L)
+    rec_loss <- rec_dim * keras::loss_binary_crossentropy(input, output)
+    rec_loss + kl_weight * kl_loss
+>>>>>>> fixed_training
   }
   loss
 }

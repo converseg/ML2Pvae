@@ -12,8 +12,13 @@ test_that("standard normal vae can be fit to data", {
   encoder <- models[[1]]
   decoder <- models[[2]]
   vae <- models[[3]]
+<<<<<<< HEAD
   fit_standard_model(encoder, decoder, vae, train_data, num_epochs = 3, verbose = 0)
   encoded_test <- encoder(test_data)
+=======
+  history <- train_model(vae, train_data, validation_split = 0.1, num_epochs = 3, verbose=0)
+  encoded_test <- predict(encoder, test_data)
+>>>>>>> fixed_training
   enc_test_mean <- encoded_test[[1]]
   enc_test_log_var <- encoded_test[[2]]
   expect_equal(dim(enc_test_mean),c(3,2))
@@ -54,7 +59,11 @@ test_that("1-parameter logistic model option makes all decoder weights = 1", {
   encoder <- models[[1]]
   decoder <- models[[2]]
   vae <- models[[3]]
+<<<<<<< HEAD
   fit_standard_model(encoder, decoder, vae, data, num_epochs = 3, verbose = 0)
+=======
+  history <- train_model(vae, data, num_epochs = 3, verbose=0)
+>>>>>>> fixed_training
   decoder_weights <- keras::get_weights(decoder)
   disc_estimates <- decoder_weights[[1]]
   expect_equal(disc_estimates, Q)
@@ -70,6 +79,10 @@ test_that("single-dimensional IRT estimation works", {
   encoder <- models[[1]]
   decoder <- models[[2]]
   vae <- models[[3]]
+<<<<<<< HEAD
   fit_standard_model(encoder, decoder, vae, data, num_epochs = 3, verbose = 0)
+=======
+  history <- train_model(vae, data, num_epochs = 3, verbose=0)
+>>>>>>> fixed_training
   expect_equal(1,1)
 })
