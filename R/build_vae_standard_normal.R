@@ -57,22 +57,11 @@ build_vae_standard_normal <- function(num_items,
                             name = 'vae_out')
   decoder <- keras::keras_model(latent_inputs, out)
   output <- decoder(encoder(input)[3])
+
   vae <- keras::keras_model(input, output)
-<<<<<<< HEAD
-  my_optimizer <- keras::optimizer_adam()
-  vae_loss <- vae_loss_standard_normal(z_mean, z_log_var, kl_weight, num_items)
-  # vae_loss <- keras::loss_binary_crossentropy
-  #TODO: do I need to compile this with the loss fcn?
-  keras::compile(vae,
-                 optimizer = my_optimizer,
-                 loss = vae_loss,
-                 experimental_run_tf_function=FALSE
-                )
-=======
   vae_loss <- vae_loss_standard_normal(encoder, kl_weight, num_items)
   keras::compile(vae,
                  optimizer = keras::optimizer_adam(),
                  loss = vae_loss)
->>>>>>> fixed_training
   list(encoder, decoder, vae)
 }
