@@ -71,10 +71,7 @@ build_vae_normal_full_covariance <- function(num_items,
 
   vae <- keras::keras_model(input, output)
   my_optimizer <- keras::optimizer_adam()
-  b <- tfprobability::tfb_fill_triangular(upper=FALSE)
-  f <- b$forward(z_log_cholesky)
-  vae_loss <- vae_loss_normal_full_covariance(z_mean,
-                                             f,
+  vae_loss <- vae_loss_normal_full_covariance(encoder,
                                              inv_skill_cov,
                                              det_skill_cov,
                                              skill_mean,

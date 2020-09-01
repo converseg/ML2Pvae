@@ -36,8 +36,7 @@ test_that("full covariance vae can be fit to data", {
   encoder <- models[[1]]
   decoder <- models[[2]]
   vae <- models[[3]]
-  #this should fail for now
-  history <- train_model(vae, train_data, validation_split = 0.1, num_epochs = 3, verbose=0)
+  history <- train_model(vae, train_data, validation_split = 0.1, batch_size = 3, num_epochs = 3, verbose=0)
   encoded_test <- encoder(test_data)
   enc_test_mean <- encoded_test[[1]]
   enc_test_log_chol <- encoded_test[[2]]
