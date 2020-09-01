@@ -111,9 +111,9 @@ The second ML2P-VAE model makes stronger assumptions - that the exact relationsh
 ## A demo on constructing, training, and evaluating an ML2P-VAE model
 ```{r}
 # Load data
-data <- as.matrix(responses)
-Q <- as.matrix(q_matrix)
-cov <- as.matrix(correlation_matrix)
+data <- as.matrix(ML2Pvae::responses)
+Q <- as.matrix(ML2Pvae::q_matrix)
+cov <- as.matrix(ML2Pvae::correlation_matrix)
 
 # Model parameters
 num_items <- as.double(dim(Q)[2])
@@ -166,28 +166,18 @@ num_train <- floor(0.8 * num_students)
 num_test <- num_students - num_train
 data_train <- data[1:num_train,]
 data_test <- data[(num_train+1):num_students,]
-num_epochs <- 12
-batch_size <- 1
+num_epochs <- 50
+batch_size <-16
 ```
 ```{r}
 # Train ML2P-VAE model assuming traits are independent
-keras::fit(object = vae_ind,
-           x = data_train,
-           y = data_train,
-           batch_size = batch_size,
-           epochs = num_epochs,
-           shuffle = FALSE,
-           verbose = 2)
+history_ind <- train_model(vae_ind, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
+plot(history_ind)
 ```
 ```{r}
 # Train ML2P-VAE model assuming correlation among traits is known
-keras::fit(object = vae_cor,
-           x = data_train,
-           y = data_train,
-           batch_size = batch_size,
-           epochs = num_epochs,
-           shuffle = FALSE,
-           verbose = 2)
+history_cor <- train_model(vae_cor, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
+plot(history_cor)
 ```
 ```{r}
 # Get parameter estimates for independent traits assumption
@@ -207,9 +197,9 @@ all_theta_est_cor <- predict(encoder_cor, data)[[1]]
 ```
 ```{r}
 # Load in true values
-disc_true <- as.matrix(disc_true)
-diff_true <- as.matrix(diff_true)
-theta_true<- as.matrix(theta_true)
+disc_true <- as.matrix(ML2Pvae::disc_true)
+diff_true <- as.matrix(ML2Pvae::diff_true)
+theta_true<- as.matrix(ML2Pvae::theta_true)
 ```
 
 ### Results assuming latent traits are independent
