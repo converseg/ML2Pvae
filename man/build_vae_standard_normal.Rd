@@ -12,7 +12,8 @@ build_vae_standard_normal(
   enc_hid_arch = c(ceiling((num_items + num_skills)/2)),
   hid_enc_activations = rep("sigmoid", length(enc_hid_arch)),
   output_activation = "sigmoid",
-  kl_weight = 1
+  kl_weight = 1,
+  learning_rate = 0.001
 )
 }
 \arguments{
@@ -28,12 +29,14 @@ build_vae_standard_normal(
 
 \item{hid_enc_activations}{a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}}
 
-\item{output_activation}{a string specifying the activation function in the output of the decoder; the ML2P model alsways used 'sigmoid'}
+\item{output_activation}{a string specifying the activation function in the output of the decoder; the ML2P model always uses 'sigmoid'}
 
 \item{kl_weight}{an optional weight for the KL divergence term in the loss function}
+
+\item{learning_rate}{an optional parameter for the adam optimizer}
 }
 \value{
-Returns three keras models: the encoder, decoder, and vae.
+returns three keras models: the encoder, decoder, and vae.
 }
 \description{
 Build a VAE that fits to a standard N(0,I) latent distribution with independent latent traits

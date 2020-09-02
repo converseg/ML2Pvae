@@ -10,6 +10,7 @@
 #' @param hid_enc_activations a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}
 #' @param output_activation a string specifying the activation function in the output of the decoder; the ML2P model alsways used 'sigmoid'
 #' @param kl_weight an optional weight for the KL divergence term in the loss function
+#' @param learning_rate an optional parameter for the adam optimizer
 #'
 validate_inputs <- function(num_items,
                             num_skills,
@@ -20,7 +21,8 @@ validate_inputs <- function(num_items,
                             enc_hid_arch = c(ceiling((num_items + num_skills)/2)),
                             hid_enc_activations = rep('sigmoid', length(enc_hid_arch)),
                             output_activation = 'sigmoid',
-                            kl_weight = 1){
+                            kl_weight = 1,
+                            learning_rate = 0.001){
   message <- ''
   if (nrow(Q_matrix) != num_skills || ncol(Q_matrix) != num_items){
     message <- paste(message, 'Invalid dimensions for Q_matrix - must be num_skills by num_items.', sep = '\n')
@@ -85,6 +87,10 @@ validate_inputs <- function(num_items,
 
   if (kl_weight < 0){
     message <- paste(message, 'The kl_weight must be greater than or equal to 0.', sep = '\n')
+  }
+
+  if (learning_rate <= 0){
+    message <- paste(message, 'The learning_rate must be greater than 0.', sep = '\n')
   }
 
   if (message != ''){

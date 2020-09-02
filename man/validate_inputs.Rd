@@ -14,7 +14,8 @@ validate_inputs(
   enc_hid_arch = c(ceiling((num_items + num_skills)/2)),
   hid_enc_activations = rep("sigmoid", length(enc_hid_arch)),
   output_activation = "sigmoid",
-  kl_weight = 1
+  kl_weight = 1,
+  learning_rate = 0.001
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ validate_inputs(
 \item{output_activation}{a string specifying the activation function in the output of the decoder; the ML2P model alsways used 'sigmoid'}
 
 \item{kl_weight}{an optional weight for the KL divergence term in the loss function}
+
+\item{learning_rate}{an optional parameter for the adam optimizer}
 }
 \description{
 Give error messages for invalid inputs in exported functions.

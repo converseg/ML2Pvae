@@ -10,7 +10,8 @@
 #' @param hid_enc_activations a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}
 #' @param output_activation a string specifying the activation function in the output of the decoder; the ML2P model alsways used 'sigmoid'
 #' @param kl_weight an optional weight for the KL divergence term in the loss function
-#' @return Returns three keras models: the encoder, decoder, and vae.
+#' @param learning_rate an optional parameter for the adam optimizer
+#' @return returns three keras models: the encoder, decoder, and vae.
 #' @export
 #' @examples
 #' Q <- matrix(c(1,0,1,1,0,1,1,0), nrow = 2, ncol = 4)
@@ -31,7 +32,8 @@ build_vae_normal_full_covariance <- function(num_items,
                                              enc_hid_arch = c(ceiling((num_items + num_skills)/2)),
                                              hid_enc_activations = rep('sigmoid', length(enc_hid_arch)),
                                              output_activation = 'sigmoid',
-                                             kl_weight = 1){
+                                             kl_weight = 1,
+                                             learning_rate = 0.001){
   validate_inputs(num_items,
                   num_skills,
                   Q_matrix,
@@ -41,7 +43,8 @@ build_vae_normal_full_covariance <- function(num_items,
                   enc_hid_arch,
                   hid_enc_activations,
                   output_activation,
-                  kl_weight)
+                  kl_weight,
+                  learning_rate)
   if (model_type == 1){
     weight_constraint <- q_1pl_constraint
   } else if (model_type == 2){
@@ -77,7 +80,7 @@ build_vae_normal_full_covariance <- function(num_items,
                                              kl_weight,
                                              num_items)
   keras::compile(vae,
-                 optimizer = keras::optimizer_adam(),
+                 optimizer = keras::optimizer_adam(lr = learning_rate),
                  loss = vae_loss)
   list(encoder, decoder, vae)
 }

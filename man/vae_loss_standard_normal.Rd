@@ -13,6 +13,9 @@ vae_loss_standard_normal(encoder, kl_weight, rec_dim)
 
 \item{rec_dim}{the number of nodes in the input/output of the VAE}
 }
+\value{
+returns a function whose parameters match keras loss format
+}
 \description{
 A custom loss function for a VAE learning a standard normal distribution
 }

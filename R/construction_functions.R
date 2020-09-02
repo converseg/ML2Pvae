@@ -34,21 +34,26 @@ sampling_normal_full_covariance <- function(arg){
   z_mean + keras::k_reshape(tensorflow::tf$matmul(z_cholesky, eps), shape = c(-1, num_skills))
 }
 
-#' A custom kernel constraint function that restricts weights between the learned distribution and output. Nonzero weights are determined by the Q matrix
+#' A custom kernel constraint function that restricts weights between the learned distribution and output. Nonzero weights are determined by the Q matrix.
 #'
-#' @param Q a binary matrixof size \code{num_skills} by \code{num_items}
+#' @param Q a binary matrix of size \code{num_skills} by \code{num_items}
+#' @return returns a function whose parameters match keras kernel constraint format
 q_constraint <- function(Q){
   constraint <- function(w){
     target <- w * Q
     diff = w - target
-    w <- w * keras::k_cast(keras::k_equal(diff, 0), keras::k_floatx()) # enforce Q-matrix connections
-    w * keras::k_cast(keras::k_greater_equal(w, 0), keras::k_floatx()) # require non-negative weights
+    w <- w * keras::k_cast(keras::k_equal(diff, 0), keras::k_floatx())
+    w * keras::k_cast(keras::k_greater_equal(w, 0), keras::k_floatx())
   }
   constraint
 }
 
+#' A custom kernel constraint function that forces nonzero weights to be equal to one, so the VAE will estimate the 1-parameter logistic model. Nonzero weights are determined by the Q matrix.
+#' @param Q a binary matrix of size \code{num_skills} by \code{num_items}
+#' @return returns a function whose parameters match keras kernel constraint format
 q_1pl_constraint <- function(Q){
   constraint <- function(w){
-    Q # require all weights = 1 according to Q matrix so VAE will esimate 1-parameter logistic model
+    Q
   }
+  constraint
 }

@@ -26,6 +26,9 @@ vae_loss_normal_full_covariance(
 
 \item{rec_dim}{the number of nodes in the input/output of the VAE}
 }
+\value{
+returns a function whose parameters match keras loss format
+}
 \description{
 A custom loss function for a VAE learning a multivariate normal distribution with a full covariance matrix
 }
