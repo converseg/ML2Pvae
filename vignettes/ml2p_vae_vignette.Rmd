@@ -101,6 +101,33 @@ Every argument from `build_vae_standard_normal` is also included in `build_vae_n
 
 The default settings for these two arguments specify a $\mathcal{N}(0,I)$ distribution, but this method should never be used as such. Though it will work, `build_vae_standard_normal` will build a more efficient and more accurate model for assuming independent latent abilities. `build_vae_full_covariance` is most effectively used when these parameters specify a more compilcated distribution, such as $\mathcal{N}(\mu, \Sigma)$ or $\mathcal{N}(0, \Sigma)$.
 
+## Model Training
+For users unfamiliar with Tensorflow and Keras, this package provides a simple wrapper function which allows for training of an ML2P-VAE model. TODO: more here
+
+```r
+train_model(model,
+            train_data,
+            validation_split = 0.15,
+            shuffle = FALSE,
+            num_epochs = 10,
+            verbose = 1,
+            batch_size = 1)
+```
+
+## Fetching Item Parameter Estimates
+After a model has been trained, the item parameter estimates are found in the trainable variables in the VAE. TODO: more here
+
+```r
+get_item_parameter_estimates(decoder, model_type = 2)
+```
+
+## Converting Response Sets into Ability Parameter Estimates
+The encoder of a trained ML2P-VAE model maps student responses to their estimates of their ability parameter. TODO: more here
+
+```r
+get_ability_parameter_estimates(encoder, responses)
+```
+
 # Examples
 In this section, an example script is given showing how to construct, train, and evaluate an ML2P-VAE model. The data is from a simulated 30 item exam which assesses 3 latent traits. The latent abilities for 5000 students were sampled from $\mathcal{N}(0, \Sigma)$, where $\Sigma$ specifies the correlations between the 3 abilities. Discrimination and difficulty paramters were sampled uniformly from $[0.25, 1.75]$ and $[-3,3]$ respectively, and entries in the Q-matrix were sampled from Bern(0.35). All of these data files are included in the package. Probabilities for each student answering each question correctly were calculated with the ML2P model \cite{mckinley}. These probabilities were sampled from to generate a response to each item on the assessment for each student.
 

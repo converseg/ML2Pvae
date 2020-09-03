@@ -16,12 +16,12 @@
 #' vae <- models[[3]]
 #' history <- train_model(vae, data, validation_split = 0, num_epochs = 3, verbose = 0)
 train_model <- function(model,
-                              train_data,
-                              validation_split = 0.15,
-                              shuffle = FALSE,
-                              num_epochs = 10,
-                              verbose = 1,
-                              batch_size= 1){
+                        train_data,
+                        validation_split = 0.15,
+                        shuffle = FALSE,
+                        num_epochs = 10,
+                        verbose = 1,
+                        batch_size = 1){
   history <- keras::fit(model, train_data, train_data,
                               epochs = num_epochs,
                               shuffle = shuffle,
