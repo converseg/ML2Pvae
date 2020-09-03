@@ -2,4 +2,6 @@
 
 export(build_vae_normal_full_covariance)
 export(build_vae_standard_normal)
+export(get_ability_parameter_estimates)
+export(get_item_parameter_estimates)
 export(train_model)

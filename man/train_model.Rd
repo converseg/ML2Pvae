@@ -30,7 +30,7 @@ train_model(
 \item{batch_size}{batch size for SGD}
 }
 \value{
-returns the training history, which can be plotted to see the loss each epoch
+returns the training history, which can be plotted to see the loss each from epoch
 }
 \description{
 Trains a VAE or autoencoder model. This acts as a wrapper for keras::fit().
@@ -38,9 +38,6 @@ Trains a VAE or autoencoder model. This acts as a wrapper for keras::fit().
 \examples{
 data <- matrix(c(1,1,0,0,1,0,1,1,0,1,1,0), nrow = 3, ncol = 4)
 Q <- matrix(c(1,0,1,1,0,1,1,0), nrow = 2, ncol = 4)
-models <- build_vae_standard_normal(4, 2, Q,
-          enc_hid_arch = c(6, 3), hid_enc_activation = c('sigmoid', 'relu'),
-          output_activation = 'tanh', kl_weight = 0.1)
 models <- build_vae_standard_normal(4, 2, Q)
 vae <- models[[3]]
 history <- train_model(vae, data, validation_split = 0, num_epochs = 3, verbose = 0)
