@@ -8,10 +8,10 @@ train_model(
   model,
   train_data,
   validation_split = 0.15,
-  shuffle = FALSE,
   num_epochs = 10,
-  verbose = 1,
-  batch_size = 1
+  batch_size = 1,
+  shuffle = FALSE,
+  verbose = 1
 )
 }
 \arguments{
@@ -21,13 +21,13 @@ train_model(
 
 \item{validation_split}{split percent to use as validation data}
 
-\item{shuffle}{whether or not to shuffle data}
-
 \item{num_epochs}{number of epochs to train for}
 
-\item{verbose}{verbosity levels}
-
 \item{batch_size}{batch size for SGD}
+
+\item{shuffle}{whether or not to shuffle data}
+
+\item{verbose}{verbosity levels}
 }
 \value{
 returns the training history, which can be plotted to see the loss each from epoch
@@ -40,5 +40,5 @@ data <- matrix(c(1,1,0,0,1,0,1,1,0,1,1,0), nrow = 3, ncol = 4)
 Q <- matrix(c(1,0,1,1,0,1,1,0), nrow = 2, ncol = 4)
 models <- build_vae_standard_normal(4, 2, Q)
 vae <- models[[3]]
-history <- train_model(vae, data, validation_split = 0, num_epochs = 3, verbose = 0)
+history <- train_model(vae, data, num_epochs = 3, validation_split = 0, verbose = 0)
 }

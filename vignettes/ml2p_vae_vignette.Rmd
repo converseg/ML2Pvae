@@ -102,34 +102,40 @@ Every argument from `build_vae_standard_normal` is also included in `build_vae_n
 The default settings for these two arguments specify a $\mathcal{N}(0,I)$ distribution, but this method should never be used as such. Though it will work, `build_vae_standard_normal` will build a more efficient and more accurate model for assuming independent latent abilities. `build_vae_full_covariance` is most effectively used when these parameters specify a more compilcated distribution, such as $\mathcal{N}(\mu, \Sigma)$ or $\mathcal{N}(0, \Sigma)$.
 
 ## Model Training
-For users unfamiliar with Tensorflow and Keras, this package provides a simple wrapper function which allows for training of an ML2P-VAE model. TODO: more here
+For users unfamiliar with Tensorflow and Keras, this package provides a simple wrapper function which allows for training of an ML2P-VAE model. `train_model()` essentially just calls `keras::fit()` with the same parameters. The output of this function is a history of the Keras fit, which can be plotted to show the training loss after each epoch.
 
 ```r
 train_model(model,
             train_data,
+            num_epochs = 10,
+            batch_size = 1,
             validation_split = 0.15,
             shuffle = FALSE,
-            num_epochs = 10,
-            verbose = 1,
-            batch_size = 1)
+            verbose = 1)
 ```
+The inputs to `train_model` include a compiled Keras model, which nedds to have autoencoder or VAE structure where the input and output layers are the same dimension. This can be obtained from the third item returned from `build_vae_standard_normal` or `build_vae_full_covariance`. The argument `train_data` is a `num_train` by `num_items` binary matrix, where entry $(j,i) = 1$ if student $j$ answered item $i$ correct, and $0$ otherwise. The remaining arguments are optional and have default values. The number of loops over the training data is set by `num_epochs`. The default `batch_size` is set to be 1 (pure stochastic gradient descent), but can be any integer less than or equal to `num_train`. `validation_split` determines the percentage of `train_data` to be held out of training and used in a validation set. `shuffle` tells whether to randomly shuffle the data after epoch or not.  The options for `verbose` are 0: silent, 1: progress bar, and 2: one line per epoch. 
 
 ## Fetching Item Parameter Estimates
-After a model has been trained, the item parameter estimates are found in the trainable variables in the VAE. TODO: more here
+After a model has been trained, the item parameter estimates are found in the trainable variables in the VAE. The function `get_item_parameter_estimates()` looks at all trainable parameters of the decoder part of the VAE and returns the values which serve as estimates to the item paramters.
 
 ```r
 get_item_parameter_estimates(decoder, model_type = 2)
 ```
+Only one argument is required, the `decoder`, which takes in a Keras model. This can be obtained from the second item returned by `build_vae_standard_normal` or `build_vae_full_covariance`. The optional argument `model_type` defaults to the 2-parameter logistic model, but can be set to 1 for the 1-parameter logistic model. In the former case, `get_item_parameter_estimates` returns the output layer biases and the weights connected to the output layer, which serve as estimates to difficulty and discrimination paramters, respectively. If `model_type = 1`, then only the output layer biases (difficulty parameter estimates) are returned.
 
 ## Converting Response Sets into Ability Parameter Estimates
-The encoder of a trained ML2P-VAE model maps student responses to their estimates of their ability parameter. TODO: more here
+The encoder of a trained ML2P-VAE model maps student responses to their estimates of their ability parameter. The function `get_ability_parameter_estimates()` acts in a similar way to `keras::predict()`. Because of the output shape of the encoder, we include this function to conveniently reshape and format the output.
 
 ```r
 get_ability_parameter_estimates(encoder, responses)
 ```
+The `encoder` argument takes in a Keras model, and should be obtained from the first item returned by `build_vae_standard_normal` or `build_vae_full_covariance`. Note that only the encoder, not the full VAE, should be inputted here. The `responses` field represents that data to get skill estimates for, and takes in a matrix with the same number of columns as `num_items`. In practice, the input to `responses` will be `train_data`, with the number of rows equal to the number of students.
+
+# Exported Data
+We include a data set in the `ML2Pvae` package for demonstrative use. The data is from a simulated 30 item exam which assesses 3 latent traits. The latent abilities for 5000 students, found in the data frame `theta_true`, were sampled from $\mathcal{N}(0, \Sigma)$. Here, $\Sigma$ specifies the correlations between the 3 abilities, and is found in the data frame `correlation_matrix`. Discrimination and difficulty paramters were sampled uniformly from $[0.25, 1.75]$ and $[-3,3]$ respectively, and entries in the Q-matrix were sampled from Bern(0.35). These values can be found in the data frames `disc_true`, `diff_true`, and `q_matrix`. Probabilities for each student answering each question correctly were calculated with the ML2P model \cite{mckinley}. These probabilities were sampled from to generate a response to each item on the assessment for each student. This is the main piece of data used for training, and is found in the data frame `responses`.
 
 # Examples
-In this section, an example script is given showing how to construct, train, and evaluate an ML2P-VAE model. The data is from a simulated 30 item exam which assesses 3 latent traits. The latent abilities for 5000 students were sampled from $\mathcal{N}(0, \Sigma)$, where $\Sigma$ specifies the correlations between the 3 abilities. Discrimination and difficulty paramters were sampled uniformly from $[0.25, 1.75]$ and $[-3,3]$ respectively, and entries in the Q-matrix were sampled from Bern(0.35). All of these data files are included in the package. Probabilities for each student answering each question correctly were calculated with the ML2P model \cite{mckinley}. These probabilities were sampled from to generate a response to each item on the assessment for each student.
+In this section, an example script is given showing how to construct, train, and evaluate an ML2P-VAE model. 
 
 Two ML2P-VAE models are constructed. The first uses `build_vae_standard_normal`, and assumes that the latent traits are independent of on another. We know that for the data provided, this assumption is false - as the responses were generated dependent on the matrix $\Sigma$. But `build_vae_standard_normal` can be useful if the true correlations between latent traits are not known, i.e. `correlation_matrix` is not given. 
 
@@ -138,9 +144,9 @@ The second ML2P-VAE model makes stronger assumptions - that the exact relationsh
 ## A demo on constructing, training, and evaluating an ML2P-VAE model
 ```{r}
 # Load data
-data <- as.matrix(ML2Pvae::responses)
-Q <- as.matrix(ML2Pvae::q_matrix)
-cov <- as.matrix(ML2Pvae::correlation_matrix)
+data <- as.matrix(responses)
+Q <- as.matrix(q_matrix)
+cov <- as.matrix(correlation_matrix)
 
 # Model parameters
 num_items <- as.double(dim(Q)[2])
@@ -208,25 +214,25 @@ plot(history_cor)
 ```
 ```{r}
 # Get parameter estimates for independent traits assumption
-decoder_params_ind <- keras::get_weights(decoder_ind)
-disc_est_ind <- decoder_params_ind[[1]]
-diff_est_ind <- decoder_params_ind[[2]]
-test_theta_est_ind <- predict(encoder_ind, data_test)[[1]]
-all_theta_est_ind <- predict(encoder_ind, data)[[1]]
+item_param_estimates_ind <- get_item_parameter_estimates(decoder_ind, model_type = 2)
+diff_est_ind <- item_param_estimates_ind[[2]]
+disc_est_ind <- item_param_estimates_ind[[1]] #TODO: switch these indices
+test_theta_est_ind <- get_ability_parameter_estimates(encoder_ind, data_test)[[1]]
+all_theta_est_ind <- get_ability_parameter_estimates(encoder_ind, data)[[1]]
 ```
 ```{r}
 # Get parameter estimates for correlated traits assumption
-decoder_params_cor <- keras::get_weights(decoder_cor)
-disc_est_cor <- decoder_params_cor[[1]]
-diff_est_cor <- decoder_params_cor[[2]]
-test_theta_est_cor <- predict(encoder_cor, data_test)[[1]]
-all_theta_est_cor <- predict(encoder_cor, data)[[1]]
+item_param_estimates_cor <- get_item_parameter_estimates(decoder_cor, model_type = 2)
+diff_est_cor <- item_param_estimates_cor[[2]]
+disc_est_cor <- item_param_estimates_cor[[1]] #TODO: switch these indices
+test_theta_est_cor <- get_ability_parameter_estimates(encoder_cor, data_test)[[1]]
+all_theta_est_cor <- get_ability_parameter_estimates(encoder_cor, data)[[1]]
 ```
 ```{r}
-# Load in true values
-disc_true <- as.matrix(ML2Pvae::disc_true)
-diff_true <- as.matrix(ML2Pvae::diff_true)
-theta_true<- as.matrix(ML2Pvae::theta_true)
+# Load in true values (included in this pacakge)
+disc_true <- as.matrix(disc_true)
+diff_true <- as.matrix(diff_true)
+theta_true<- as.matrix(theta_true)
 ```
 
 ### Results assuming latent traits are independent

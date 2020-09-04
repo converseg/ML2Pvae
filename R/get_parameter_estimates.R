@@ -1,5 +1,5 @@
 #' Get trainable variables from the decoder, which serve as item parameter estimates.
-#' 
+#'
 #' @param decoder a trained keras model
 #' @param model_type either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model
 #' @return a list which contains item parameter estimates. The length of this list is equal to model_type
@@ -16,14 +16,14 @@ get_item_parameter_estimates <- function(decoder, model_type = 2){
   if (model_type == 1){
     estimates[1] <- all_decoder_weights[weights_length]
   } else{
-    estimates[1] <- all_decoder_weights[weights_length - 1]
-    estimates[2] <- all_decoder_weights[weights_length]
+    estimates[1] <- all_decoder_weights[weights_length]
+    estimates[2] <- all_decoder_weights[weights_length - 1]
   }
   estimates
 }
 
 #' Feed forward response sets through the encoder, which outputs student ability estimates
-#' 
+#'
 #' @param encoder a trained keras model
 #' @param responses a set of binary responses, as used in training
 #' @return a list containing student ability estimates and the variance (or covariance matrix) of those estimates

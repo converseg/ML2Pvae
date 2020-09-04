@@ -22,6 +22,11 @@ Suggests:
     knitr,
     rmarkdown,
     testthat
+VignetteBuilder: knitr
+Depends: 
+    R (>= 3.6)
+URL:
+    https://converseg.github.io
 Config/reticulate:
     list(
       packages = list(
@@ -30,8 +35,3 @@ Config/reticulate:
         list(package = "tensorflow-probability", pip = TRUE)
       )
     )
-VignetteBuilder: knitr
-Depends: 
-    R (>= 3.6)
-URL:
-    https://converseg.github.io
