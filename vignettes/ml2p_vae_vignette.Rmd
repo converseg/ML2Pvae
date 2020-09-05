@@ -135,18 +135,19 @@ The `encoder` argument takes in a Keras model, and should be obtained from the f
 We include a data set in the `ML2Pvae` package for demonstrative use. The data is from a simulated 30 item exam which assesses 3 latent traits. The latent abilities for 5000 students, found in the data frame `theta_true`, were sampled from $\mathcal{N}(0, \Sigma)$. Here, $\Sigma$ specifies the correlations between the 3 abilities, and is found in the data frame `correlation_matrix`. Discrimination and difficulty paramters were sampled uniformly from $[0.25, 1.75]$ and $[-3,3]$ respectively, and entries in the Q-matrix were sampled from Bern(0.35). These values can be found in the data frames `disc_true`, `diff_true`, and `q_matrix`. Probabilities for each student answering each question correctly were calculated with the ML2P model \cite{mckinley}. These probabilities were sampled from to generate a response to each item on the assessment for each student. This is the main piece of data used for training, and is found in the data frame `responses`.
 
 # Examples
-In this section, an example script is given showing how to construct, train, and evaluate an ML2P-VAE model. 
+In this section, an example script is given showing how to construct, train, and evaluate an ML2P-VAE model. Three ML2P-VAE models are constructed, and all use the same data described previously.
 
-Two ML2P-VAE models are constructed. The first uses `build_vae_standard_normal`, and assumes that the latent traits are independent of on another. We know that for the data provided, this assumption is false - as the responses were generated dependent on the matrix $\Sigma$. But `build_vae_standard_normal` can be useful if the true correlations between latent traits are not known, i.e. `correlation_matrix` is not given. 
+The first uses `build_vae_standard_normal`, and assumes that the latent traits are independent of one another. We know that for the data provided, this assumption is false - as the responses were generated dependent on the matrix $\Sigma$. But `build_vae_standard_normal` can be useful if the true correlations between latent traits are not known, i.e. `correlation_matrix` is not given. 
 
 The second ML2P-VAE model makes stronger assumptions - that the exact relationship between abilities is known (and given). `build_vae_normal_full_covariance` encodes the response set to reflect the known correlations. On this data, it is unsurprising that this model yields better results than the first model, since it uses additional information about the distribution of the latent traits.
 
-## A demo on constructing, training, and evaluating an ML2P-VAE model
+The last model again uses `build_vae_standard_normal`, but demonstrates some other uses of the software. We demonstrate that this software can be used create a model with a single latent trait $\theta$, so that single-dimensional IRT models can be estimated. We also specify `model_type = 1` here, which trains a 1-parameter logistic model, fixing the decoder weights to be equal to 1. We know both of these assumptions to be false for the exported dataset, so we don't expect great results. Also note that the assumptions `num_skills = 1` and `model_type = 1` do not both need to be used together, and that a 1-parameter logistic model would also work with `build_vae_full_covariance`.
+
+## A demo on constructing, training, and evaluating ML2P-VAE models
 ```{r}
 # Load data
 data <- as.matrix(responses)
 Q <- as.matrix(q_matrix)
-cov <- as.matrix(correlation_matrix)
 
 # Model parameters
 num_items <- as.double(dim(Q)[2])
@@ -158,8 +159,8 @@ enc_act <- c('relu', 'tanh')
 out_act <- 'sigmoid'
 kl <- 1
 ```
+### Model 1: An ML2P-VAE model assuming latent traits are independent
 ```{r}
-# Construct ML2P-VAE model assuming latent traits are independent
 models_ind <- build_vae_standard_normal(num_items,
                                         num_skills,
                                         Q,
@@ -174,8 +175,10 @@ encoder_ind
 decoder_ind
 vae_ind
 ```
+### Model 2: An ML2P-VAE model assuming correlation among traits is known
 ```{r}
-# Construct ML2P-VAE model assuming correlation among traits is known
+# Need to load in covariance matrix for this model type
+cov <- as.matrix(correlation_matrix)
 models_cor <- build_vae_normal_full_covariance(num_items,
                                            num_skills,
                                            Q,
@@ -193,6 +196,24 @@ encoder_cor
 decoder_cor
 vae_cor
 ```
+### Model 3: A single dimensional 1-PL model
+```{r}
+# For single dimensional IRT, connect all items to the one skill
+q_ones <- matrix(rep(1, num_items), nrow = 1, ncol = num_items)
+models_1pl <- build_vae_standard_normal(num_items,
+                                        num_skills = 1,
+                                        Q = q_ones,
+                                        model_type = 1,
+                                        enc_hid_arch = enc_arch,
+                                        hid_enc_activation = enc_act,
+                                        output_activation = out_act)
+encoder_1pl <- models_1pl[[1]]
+decoder_1pl <- models_1pl[[2]]
+vae_1pl <- models_1pl[[3]]
+encoder_1pl
+decoder_1pl
+vae_1pl
+```
 ```{r}
 # Training parameters
 num_train <- floor(0.8 * num_students)
@@ -203,30 +224,43 @@ num_epochs <- 50
 batch_size <-16
 ```
 ```{r}
-# Train ML2P-VAE model assuming traits are independent
+# Train Model 1
 history_ind <- train_model(vae_ind, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
 plot(history_ind)
 ```
 ```{r}
-# Train ML2P-VAE model assuming correlation among traits is known
+# Train Model 2
 history_cor <- train_model(vae_cor, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
 plot(history_cor)
 ```
 ```{r}
-# Get parameter estimates for independent traits assumption
+# Train Model 3
+history_1pl <- train_model(vae_1pl, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
+plot(history_1pl)
+```
+```{r}
+# Get parameter estimates for Model 1
 item_param_estimates_ind <- get_item_parameter_estimates(decoder_ind, model_type = 2)
-diff_est_ind <- item_param_estimates_ind[[2]]
-disc_est_ind <- item_param_estimates_ind[[1]] #TODO: switch these indices
+diff_est_ind <- item_param_estimates_ind[[1]]
+disc_est_ind <- item_param_estimates_ind[[2]]
 test_theta_est_ind <- get_ability_parameter_estimates(encoder_ind, data_test)[[1]]
 all_theta_est_ind <- get_ability_parameter_estimates(encoder_ind, data)[[1]]
 ```
 ```{r}
-# Get parameter estimates for correlated traits assumption
+# Get parameter estimates for Model 2
 item_param_estimates_cor <- get_item_parameter_estimates(decoder_cor, model_type = 2)
-diff_est_cor <- item_param_estimates_cor[[2]]
-disc_est_cor <- item_param_estimates_cor[[1]] #TODO: switch these indices
+diff_est_cor <- item_param_estimates_cor[[1]]
+disc_est_cor <- item_param_estimates_cor[[2]]
 test_theta_est_cor <- get_ability_parameter_estimates(encoder_cor, data_test)[[1]]
 all_theta_est_cor <- get_ability_parameter_estimates(encoder_cor, data)[[1]]
+```
+```{r}
+# Get parameter estimates for Model 3
+item_param_estimates_1pl <- get_item_parameter_estimates(decoder_1pl, model_type = 1)
+diff_est_1pl <- item_param_estimates_1pl[[1]]
+# No discrimination parameters in this model
+test_theta_est_1pl <- get_ability_parameter_estimates(encoder_1pl, data_test)[[1]]
+all_theta_est_1pl <- get_ability_parameter_estimates(encoder_1pl, data)[[1]]
 ```
 ```{r}
 # Load in true values (included in this pacakge)
@@ -235,48 +269,66 @@ diff_true <- as.matrix(diff_true)
 theta_true<- as.matrix(theta_true)
 ```
 
-### Results assuming latent traits are independent
+### Results for each model
 
 ```{r}
-# Examine ML2P-VAE model estimates (independent latent traits assumption)
+# Examine Model 1 estimates
 par(pty="s")
 matplot(t(disc_true), t(disc_est_ind), pch = '*',
         xlim = c(0.05, 2), ylim = c(0.05, 2),
         main = 'Discrimination Parameters',
+        sub = 'Assuming latent traits are independent',
         xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 plot(diff_true, diff_est_ind, pch = '*',
      xlim = c(-3.1,3.1), ylim = c(-3.1,3.1),
      main = 'Difficulty Parameters',
+     sub = 'Assuming latent traits are independent',
      xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 matplot(theta_true[4200:4400,], all_theta_est_ind[4200:4400,], pch = '*',
         xlim = c(-3,3), ylim = c(-3,3),
         main = 'Ability Parameters',
+        sub = 'Assuming latent traits are independent',
         xlab = 'True', ylab = 'Estimated')
 ```
-
-### Results assuming latent traits are correlated
-
 ```{r}
-# Examine ML2P-VAE model estimates (correlated latent traits assumption)
+# Examine Model 2 estimates
 par(pty="s")
 matplot(t(disc_true), t(disc_est_cor), pch = '*',
         xlim = c(0.05, 2), ylim = c(0.05, 2),
         main = 'Discrimination Parameters',
+        sub = 'Assuming correlation between latent traits is known',
         xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 plot(diff_true, diff_est_cor, pch = '*',
      xlim = c(-3.1,3.1), ylim = c(-3.1,3.1),
      main = 'Difficulty Parameters',
+     sub = 'Assuming correlation between latent traits is known',
      xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 matplot(theta_true[4200:4400,], all_theta_est_cor[4200:4400,], pch = '*',
         xlim = c(-3,3), ylim = c(-3,3),
         main = 'Ability Parameters',
+        sub = 'Assuming correlation between latent traits is known',
         xlab = 'True', ylab = 'Estimated')
 ```
-
+```{r}
+# Examine Model 3 estimates
+theta_summed <- rowSums(theta_true[4200:4400,])
+par(pty="s")
+plot(diff_true, diff_est_1pl, pch = '*',
+     xlim = c(-3.1,3.1), ylim = c(-3.1,3.1),
+     main = 'Difficulty Parameters',
+     sub = 'Assuming single latent trait and 1-PL model',
+     xlab = 'True', ylab = 'Estimated')
+par(pty="s")
+plot(theta_summed, all_theta_est_1pl[4200:4400,1], pch = '*',
+     xlim = c(-3,3), ylim = c(-3,3),
+     main = 'Ability Parameters',
+     sub = 'Assuming single latent trait and 1-PL model',
+     xlab = 'True', ylab = 'Estimated')
+```
 
 
 ```{r, include = FALSE}
