@@ -30,7 +30,7 @@ train_model(
 \item{verbose}{verbosity levels}
 }
 \value{
-returns the training history, which can be plotted to see the loss each from epoch
+returns a list containing training history, which contains the loss from each epoch
 }
 \description{
 Trains a VAE or autoencoder model. This acts as a wrapper for keras::fit().

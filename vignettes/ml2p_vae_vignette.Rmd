@@ -9,7 +9,9 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
+```{r}
+knitr::opts_chunk$set(fig.width=4, fig.height=4, fig.align = 'center') 
+```
 ```{r setup}
 library(ML2Pvae)
 ```
@@ -226,17 +228,26 @@ batch_size <-16
 ```{r}
 # Train Model 1
 history_ind <- train_model(vae_ind, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
-plot(history_ind)
+plot(history_ind, main = 'Model 1 Training Loss',
+     sub = '',
+     xlab = 'Epoch',
+     ylab = 'Loss')
 ```
 ```{r}
 # Train Model 2
 history_cor <- train_model(vae_cor, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
-plot(history_cor)
+plot(history_cor, main = 'Model 2 Training Loss',
+     sub = '',
+     xlab = 'Epoch',
+     ylab = 'Loss')
 ```
 ```{r}
 # Train Model 3
 history_1pl <- train_model(vae_1pl, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
-plot(history_1pl)
+plot(history_1pl, main = 'Model 3 Training Loss',
+     sub = ' ',
+     xlab = 'Epoch',
+     ylab = 'Loss')
 ```
 ```{r}
 # Get parameter estimates for Model 1
@@ -298,19 +309,19 @@ par(pty="s")
 matplot(t(disc_true), t(disc_est_cor), pch = '*',
         xlim = c(0.05, 2), ylim = c(0.05, 2),
         main = 'Discrimination Parameters',
-        sub = 'Assuming correlation between latent traits is known',
+        sub = 'Assuming knwon correlation between latent traits',
         xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 plot(diff_true, diff_est_cor, pch = '*',
      xlim = c(-3.1,3.1), ylim = c(-3.1,3.1),
      main = 'Difficulty Parameters',
-     sub = 'Assuming correlation between latent traits is known',
+     sub = 'Assuming known correlation between latent traits',
      xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 matplot(theta_true[4200:4400,], all_theta_est_cor[4200:4400,], pch = '*',
         xlim = c(-3,3), ylim = c(-3,3),
         main = 'Ability Parameters',
-        sub = 'Assuming correlation between latent traits is known',
+        sub = 'Assuming known correlation between latent traits',
         xlab = 'True', ylab = 'Estimated')
 ```
 ```{r}

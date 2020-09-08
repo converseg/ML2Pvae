@@ -7,7 +7,7 @@
 #' @param validation_split split percent to use as validation data
 #' @param shuffle whether or not to shuffle data
 #' @param verbose verbosity levels
-#' @return returns the training history, which can be plotted to see the loss each from epoch
+#' @return returns a list containing training history, which contains the loss from each epoch
 #' @export
 #' @examples
 #' data <- matrix(c(1,1,0,0,1,0,1,1,0,1,1,0), nrow = 3, ncol = 4)
@@ -27,6 +27,7 @@ train_model <- function(model,
                               shuffle = shuffle,
                               verbose = verbose,
                               batch_size = batch_size)
-  history
+
+  history[2]$metrics$loss
 }
 
