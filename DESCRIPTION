@@ -27,7 +27,7 @@ Depends:
     R (>= 3.6)
 URL:
     https://converseg.github.io
-Config/reticulate:
+Config:
     list(
       packages = list(
         list(package = "keras", pip = TRUE),

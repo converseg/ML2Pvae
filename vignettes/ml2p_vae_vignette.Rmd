@@ -9,8 +9,8 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-```{r}
-knitr::opts_chunk$set(fig.width=4, fig.height=4, fig.align = 'center') 
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = '#>', fig.width=4, fig.height=4, fig.align = 'center') 
 ```
 ```{r setup}
 library(ML2Pvae)
@@ -137,7 +137,7 @@ The `encoder` argument takes in a Keras model, and should be obtained from the f
 We include a data set in the `ML2Pvae` package for demonstrative use. The data is from a simulated 30 item exam which assesses 3 latent traits. The latent abilities for 5000 students, found in the data frame `theta_true`, were sampled from $\mathcal{N}(0, \Sigma)$. Here, $\Sigma$ specifies the correlations between the 3 abilities, and is found in the data frame `correlation_matrix`. Discrimination and difficulty paramters were sampled uniformly from $[0.25, 1.75]$ and $[-3,3]$ respectively, and entries in the Q-matrix were sampled from Bern(0.35). These values can be found in the data frames `disc_true`, `diff_true`, and `q_matrix`. Probabilities for each student answering each question correctly were calculated with the ML2P model \cite{mckinley}. These probabilities were sampled from to generate a response to each item on the assessment for each student. This is the main piece of data used for training, and is found in the data frame `responses`.
 
 # Examples
-In this section, an example script is given showing how to construct, train, and evaluate an ML2P-VAE model. Three ML2P-VAE models are constructed, and all use the same data described previously.
+In this section, an example script is given showing how to construct, train, and evaluate an ML2P-VAE model. Three ML2P-VAE models are constructed, and all use the same data described previously. Each model yields estimates to item parameters and student ability parameters.
 
 The first uses `build_vae_standard_normal`, and assumes that the latent traits are independent of one another. We know that for the data provided, this assumption is false - as the responses were generated dependent on the matrix $\Sigma$. But `build_vae_standard_normal` can be useful if the true correlations between latent traits are not known, i.e. `correlation_matrix` is not given. 
 
@@ -216,6 +216,7 @@ encoder_1pl
 decoder_1pl
 vae_1pl
 ```
+### Training
 ```{r}
 # Training parameters
 num_train <- floor(0.8 * num_students)
@@ -228,7 +229,8 @@ batch_size <-16
 ```{r}
 # Train Model 1
 history_ind <- train_model(vae_ind, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
-plot(history_ind, main = 'Model 1 Training Loss',
+plot(history_ind,
+     main = 'Model 1 Training Loss',
      sub = '',
      xlab = 'Epoch',
      ylab = 'Loss')
@@ -236,7 +238,8 @@ plot(history_ind, main = 'Model 1 Training Loss',
 ```{r}
 # Train Model 2
 history_cor <- train_model(vae_cor, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
-plot(history_cor, main = 'Model 2 Training Loss',
+plot(history_cor,
+     main = 'Model 2 Training Loss',
      sub = '',
      xlab = 'Epoch',
      ylab = 'Loss')
@@ -244,7 +247,8 @@ plot(history_cor, main = 'Model 2 Training Loss',
 ```{r}
 # Train Model 3
 history_1pl <- train_model(vae_1pl, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
-plot(history_1pl, main = 'Model 3 Training Loss',
+plot(history_1pl,
+     main = 'Model 3 Training Loss',
      sub = ' ',
      xlab = 'Epoch',
      ylab = 'Loss')
@@ -287,19 +291,19 @@ theta_true<- as.matrix(theta_true)
 par(pty="s")
 matplot(t(disc_true), t(disc_est_ind), pch = '*',
         xlim = c(0.05, 2), ylim = c(0.05, 2),
-        main = 'Discrimination Parameters',
+        main = 'Model 1 Discrimination Parameters',
         sub = 'Assuming latent traits are independent',
         xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 plot(diff_true, diff_est_ind, pch = '*',
      xlim = c(-3.1,3.1), ylim = c(-3.1,3.1),
-     main = 'Difficulty Parameters',
+     main = 'Model 1 Difficulty Parameters',
      sub = 'Assuming latent traits are independent',
      xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 matplot(theta_true[4200:4400,], all_theta_est_ind[4200:4400,], pch = '*',
         xlim = c(-3,3), ylim = c(-3,3),
-        main = 'Ability Parameters',
+        main = 'Model 1 Ability Parameters',
         sub = 'Assuming latent traits are independent',
         xlab = 'True', ylab = 'Estimated')
 ```
@@ -308,19 +312,19 @@ matplot(theta_true[4200:4400,], all_theta_est_ind[4200:4400,], pch = '*',
 par(pty="s")
 matplot(t(disc_true), t(disc_est_cor), pch = '*',
         xlim = c(0.05, 2), ylim = c(0.05, 2),
-        main = 'Discrimination Parameters',
+        main = 'Model 2 Discrimination Parameters',
         sub = 'Assuming knwon correlation between latent traits',
         xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 plot(diff_true, diff_est_cor, pch = '*',
      xlim = c(-3.1,3.1), ylim = c(-3.1,3.1),
-     main = 'Difficulty Parameters',
+     main = 'Model 2 Difficulty Parameters',
      sub = 'Assuming known correlation between latent traits',
      xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 matplot(theta_true[4200:4400,], all_theta_est_cor[4200:4400,], pch = '*',
         xlim = c(-3,3), ylim = c(-3,3),
-        main = 'Ability Parameters',
+        main = 'Model 2 Ability Parameters',
         sub = 'Assuming known correlation between latent traits',
         xlab = 'True', ylab = 'Estimated')
 ```
@@ -330,13 +334,13 @@ theta_summed <- rowSums(theta_true[4200:4400,])
 par(pty="s")
 plot(diff_true, diff_est_1pl, pch = '*',
      xlim = c(-3.1,3.1), ylim = c(-3.1,3.1),
-     main = 'Difficulty Parameters',
+     main = 'Model 3 Difficulty Parameters',
      sub = 'Assuming single latent trait and 1-PL model',
      xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 plot(theta_summed, all_theta_est_1pl[4200:4400,1], pch = '*',
      xlim = c(-3,3), ylim = c(-3,3),
-     main = 'Ability Parameters',
+     main = 'Model 3 Ability Parameters',
      sub = 'Assuming single latent trait and 1-PL model',
      xlab = 'True', ylab = 'Estimated')
 ```
