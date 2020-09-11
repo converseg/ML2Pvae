@@ -43,7 +43,7 @@ The model that this package focuses on is the Multidimensional Logistic 2-Parame
 \[P(u_{ij}=1 | \Theta_j) = \frac{1}{1 + \exp[-\vec a_i^\top\Theta_j + b_i]} = \frac{1}{1 + \exp[-\sum_{k=1}^K a_{ik}\theta_{jk} + b_i]}\]
 where the discrimination parameters $\vec a_i^\top = (a_{ik})_{1\leq k\leq K}$ determine \textit{how much} of skill $k$ is required to answer item $i$ correctly, and the difficulty parameter $b_i$ quantifies the difficulty of item $i$.
 
-In application, we often only have response vectors for a set of students - so we need to estimate the ability parameters $\Theta_j$ for each student, along with the discrimination and difficulty parameters for each item. While there are many parameter estimation methods, including the Expectation-Maximization algorithm and various MCMC methods, many of them become infeasible as the number of latent traits increases beyond $\dim(\Theta_j) = 7$.
+In application, we often only have response vectors for a set of students - so we need to estimate the ability parameters $\Theta_j$ for each student, along with the discrimination and difficulty parameters for each item. While there are many parameter estimation methods, including the Expectation-Maximization algorithm and various MCMC methods, many of them become infeasible as the number of latent traits increases beyond $\dim(\Theta_j) = 8$.
 
 
 # ML2P-VAE Description
@@ -52,7 +52,7 @@ Certain modifications to the typical VAE architecture \cite{kingma} are required
     \sigma(z_i) = \frac{1}{1 + e^{-z_i}}
     \label{sigmoid}
 \end{equation}
-where $z_i = \sum_{k=1}^K w_{k,i}\alpha_{k} + b_i$. Here, $w_{i,k}$ is the weight between the $k$-th and $i$-th nodes in the second-to-last and output layer, respectively. $\alpha_k$ is the activation of the $k$-th node in the second-to-last layer, and $b_i$ is the bias value of the $i$-th node in the output layer. Note that the form of this activation function is identical to that of the ML2P model.
+where $z_i = \sum_{k=1}^K w_{k,i}\alpha_{k} + b_i$. Here, $w_{i,k}$ is the weight between the $k$-th and $i$-th nodes in the second-to-last and output layer, respectively. $\alpha_k$ is the activation of the $k$-th node in the second-to-last layer, and $b_i$ is the bias value of the $i$-th node in the output layer. Note that the form of this activation function is identical to that of the ML2P model. This allows for interpretataion of the weights and biases in the final network layer as estimates to the discrimination and difficulty parameters, respectively. The activation values $\alpha_:$, which are produced by the encoder of the VAE, can be interpreted as estimates to the student ability parameters $\Theta$.
 
 
 # Description of Exported Functions
@@ -80,7 +80,7 @@ The other parameters in `build_vae_standard_normal` have default settings which 
 
 `output_activation` specifies the activation function in the output of the decoder. The default is to use a sigmoidal activation function, and should not be changed when using ML2P-VAE to estimate logistic models. If a different activation function is used, then the decoder cannot be interpreted as a ML2P model. The final option is the hyperparameter `kl_weight`, which changes the value of $\lambda$ in the VAE loss function
 \[\mathcal{L}(w) = \mathcal{L}_{0}(w) + \lambda \mathcal{L}_{KL}(w),\]
-where $\mathcal{L}_0$ is the reconstruction loss of the VAE, and $\mathcal{L}_{KL}$ is the KL-Divergence between $\mathcal{N}(0,I)$ and the distribution learned by the encoder.
+where $\mathcal{L}_0$ is the reconstruction loss of the VAE, and $\mathcal{L}_{KL}$ is the KL-Divergence \cite{kullback} between $\mathcal{N}(0,I)$ and the distribution learned by the encoder.
 
 
 ## Correlated Latent Traits
@@ -237,7 +237,7 @@ plot(history_ind,
 ```
 ```{r}
 # Train Model 2
-history_cor <- train_model(vae_cor, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
+history_cor <- train_model(vae_cor, data_train, num_epochs = 300, batch_size = batch_size, verbose = 0)
 plot(history_cor,
      main = 'Model 2 Training Loss',
      sub = '',
@@ -313,7 +313,7 @@ par(pty="s")
 matplot(t(disc_true), t(disc_est_cor), pch = '*',
         xlim = c(0.05, 2), ylim = c(0.05, 2),
         main = 'Model 2 Discrimination Parameters',
-        sub = 'Assuming knwon correlation between latent traits',
+        sub = 'Assuming known correlation between latent traits',
         xlab = 'True', ylab = 'Estimated')
 par(pty="s")
 plot(diff_true, diff_est_cor, pch = '*',
@@ -345,6 +345,10 @@ plot(theta_summed, all_theta_est_1pl[4200:4400,1], pch = '*',
      xlab = 'True', ylab = 'Estimated')
 ```
 
+## Discussion
+In the above examples, we demonstrate how to build, train, and evaluate ML2P-VAE models for IRT parameter estimation. In this case, we knew the exact distribution of the simulated students latent traits, so it shouldn't be a surprise that the item and ability estimates are most accurate for Model 2. The structure of Model 1 assumes that latent traits are independent, and Model 3 assumes there is only one latent ability (uni-dimensional IRT), in addition to using a 1-parameter logistic model instead of a 2-parameter logistic model. Note that the two assumptions made in Model 3 could easily be implemented independent of one another.
+
+In real applications, a known covariance matrix for the latent traits may not be known. In this case, one can either simply assume independence and use `build_vae_standard_normal`, or estimate a covariance matrix from the data. This can be done by multiplying the (`num_students` $\times$ `num_items`) response matrix by the (`num_items` $\times$ `num_skills`) Q-matrix, and then taking the Pearson correlation of the columns of the resulting matrix. This will yield a (`num_skills` $\times$ `num_skills`) approximate correlation matrix which can be used in `build_vae_full_covariance`.
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -360,6 +364,8 @@ knitr::opts_chunk$set(
 \bibitem{curi2019} Curi, Converse, Hajewski, Oliveira. ``Interpretable Variational Autoencoders for Cognitive Models.'' In proceedings of the International Joint Conference on Neural Networks, 2019.
 
 \bibitem{kingma} Kingma and Welling. ``Auto-Encoding Variational Bayes.'' In proceedings of The International Conference on Learning Representations, 2014.
+
+\bibitem{kullback} Kullback and Leibler. ``On information and sufficiency.'' Annals of Mathematical Statistics, page 79–86, 1951.
 
 \bibitem{mckinley} McKinley and Reckase. ``The use of the General Rasch Model with Multidimensional Item Response Data.'' American College Testing, 1980.
 
