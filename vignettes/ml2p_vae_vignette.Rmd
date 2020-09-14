@@ -21,9 +21,15 @@ library(ML2Pvae)
 \def \d{\ensuremath \delta}
 \def \tr{\ensuremath \text{tr}}
 
+\tableofcontents
+
 # Introduction
 This package allows easy implementation of the ML2P-VAE method for estimating parameters in Item Response Theory (IRT). This method was first proposed by Curi et. al. \cite{curi2019}, and was later compared with a similar method which used regular autoencoders, rather than variational autoencoders (VAE) \cite{ae_v_vae}. Other parameter estimation methods rely on numerical integration or MCMC methods, and are infeasible when the latent ability dimension is greater than 8. ML2P-VAE methods learn one function mapping response sets to latent abilities, and another function mapping latent abilities to the probability of answering items correctly. The latter is the Multidimensional Logistic 2-Parameter model.
 
+## Installation and Setup
+This package requires an installation of Python 3, along with the Python libraries `tensorflow`, `keras`, and `tensorflow-probability`. These can be installed via pip from the system terminal with the command `pip install <pkg>`.
+
+Inside of `R`, `ML2Pvae` requires the CRAN packages `tensorflow` and `tfprobability`, installed via `install.packaegs('<pkg>')`. It also requires the package `keras`, but this must be downloaded from Git, rather than CRAN. This can be done using the `devtools` package by running `devtools::install_github('rstudio/keras')`.
 
 ## Multidimensional Logistic 2-Parameter (ML2P) Model
 In Item Response Theory, the goal is often to quantify the relation between the underlying ability (or abilities) of students and their performance on an assessment. Formally, we assume that every student $j$ posesses some latent ability value $\Theta_j$, which is not directly observable. Often, we assume that $\Theta_j$ is distributed normally across the population of $N$ students. In a practical setting, our data for each student may be a binary vector $u_j \in \R^n$ where a 1 (resp. 0) corresponds to a correct (resp. incorrect) answer, to an exam consisting of $n$ questions (items). Given a student $j$'s assessment results, how can we infer the latent value $\Theta_j$?
@@ -223,8 +229,8 @@ num_train <- floor(0.8 * num_students)
 num_test <- num_students - num_train
 data_train <- data[1:num_train,]
 data_test <- data[(num_train+1):num_students,]
-num_epochs <- 50
-batch_size <-16
+num_epochs <- 20
+batch_size <-2
 ```
 ```{r}
 # Train Model 1
@@ -237,7 +243,7 @@ plot(history_ind,
 ```
 ```{r}
 # Train Model 2
-history_cor <- train_model(vae_cor, data_train, num_epochs = 300, batch_size = batch_size, verbose = 0)
+history_cor <- train_model(vae_cor, data_train, num_epochs = 20, batch_size = batch_size, verbose = 0)
 plot(history_cor,
      main = 'Model 2 Training Loss',
      sub = '',
