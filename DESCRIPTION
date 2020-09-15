@@ -1,11 +1,11 @@
 Package: ML2Pvae
 Type: Package
-Title: Implement Q-matrix into VAE Architecture for estimating parameters of the ML2P Model in IRT
+Title: Construct, train, and evaluate ML2P-VAE models for parameter estimation in Item Response Theory
 Version: 0.1.0
-Authors@R: person("Geoffrey", "Converse", email = "converseg@gmail.com", role = c("aut", "cre"))
+Authors@R: person("Geoffrey", "Converse", email = "converseg@gmail.com", role = c("aut", "cre"),comment = c(ORCID = "0000-0001-8764-9950"))
 Author: Geoffrey Converse [aut, cre]
 Maintainer: Geoffrey Converse <converseg@gmail.com>
-Description: Based on the work "Interpretable Variational Autoencdoers for Cognitive Models" by Curi, M., Converse, G., Hajewski, J., and Oliveira, S. Found in International Joint Conference on Neural Networks, 2019. This package provides easy-to-use functions which create a variational autoencoder (VAE) to be used for parameter estimation in Item Response Theory (IRT) - namely the Multidimensional Logistic 2-Parameter (ML2P) model. To use a neural network as such, nontrivial modifications to the architecture must be made, such as restricting the nonzero weights in the decoder according to some binary matrix Q. The functions in this package build everything automatically so that minimal knowledge of tensorflow/keras is required for the user. 
+Description: Based on the work "Interpretable Variational Autoencdoers for Cognitive Models" by Curi, M., Converse, G., Hajewski, J., and Oliveira, S. Found in International Joint Conference on Neural Networks, 2019. This package provides easy-to-use functions which create a variational autoencoder (VAE) to be used for parameter estimation in Item Response Theory (IRT) - namely the Multidimensional Logistic 2-Parameter (ML2P) model. To use a neural network as such, nontrivial modifications to the architecture must be made, such as restricting the nonzero weights in the decoder according to some binary matrix Q. The functions in this package allow straight-forward construction, training, and evaluation so that minimal knowledge of Tensorflow or Keras is required. 
 Note: The developer version of Keras should be used, rather than the CRAN version. The latter will cause tests to fail on their initial run, but work on subsequent tries. To avoid this, use devtools::install_github("rstudio/keras"). The user also must have an installation of Python 3.
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -16,7 +16,7 @@ Imports:
     tensorflow (>= 2.2.0),
     tfprobability (>= 0.11.0)
 Additional_repositories:
-    https://github.com/rstudio/keras
+    <https://github.com/rstudio/keras>
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,
@@ -26,8 +26,8 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 3.6)
 URL:
-    https://converseg.github.io
-Config:
+    <https://converseg.github.io>
+reticulate:
     list(
       packages = list(
         list(package = "keras", pip = TRUE),

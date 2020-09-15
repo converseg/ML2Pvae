@@ -21,7 +21,6 @@
 #'           enc_hid_arch = c(6, 3), hid_enc_activation = c('sigmoid', 'relu'),
 #'           output_activation = 'tanh',
 #'           kl_weight = 0.1)
-#' models <- build_vae_normal_full_covariance(4, 2, Q)
 #' vae <- models[[3]]
 build_vae_normal_full_covariance <- function(num_items,
                                              num_skills,
