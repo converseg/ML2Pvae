@@ -15,8 +15,6 @@ Imports:
     reticulate (>= 1.0),
     tensorflow (>= 2.2.0),
     tfprobability (>= 0.11.0)
-Additional_repositories:
-    https://github.com/rstudio/keras
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,
@@ -27,7 +25,11 @@ Depends:
     R (>= 3.6)
 URL:
     https://converseg.github.io
-Config:
+SystemRequirements:
+    TensorFlow (https://www.tensorflow.org),
+    Keras (https://keras.io),
+    TensorFlow Probability (https://www.tensorflow.org/probability)
+Config/reticulate:
     list(
       packages = list(
         list(package = "keras", pip = TRUE),

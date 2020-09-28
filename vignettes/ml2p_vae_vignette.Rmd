@@ -229,8 +229,8 @@ num_train <- floor(0.8 * num_students)
 num_test <- num_students - num_train
 data_train <- data[1:num_train,]
 data_test <- data[(num_train+1):num_students,]
-num_epochs <- 20
-batch_size <-2
+num_epochs <- 30
+batch_size <- 16
 ```
 ```{r}
 # Train Model 1
@@ -243,7 +243,7 @@ plot(history_ind,
 ```
 ```{r}
 # Train Model 2
-history_cor <- train_model(vae_cor, data_train, num_epochs = 20, batch_size = batch_size, verbose = 0)
+history_cor <- train_model(vae_cor, data_train, num_epochs = num_epochs, batch_size = batch_size, verbose = 0)
 plot(history_cor,
      main = 'Model 2 Training Loss',
      sub = '',
