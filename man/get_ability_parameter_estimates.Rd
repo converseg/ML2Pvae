@@ -7,20 +7,23 @@
 get_ability_parameter_estimates(encoder, responses)
 }
 \arguments{
-\item{encoder}{a trained keras model}
+\item{encoder}{a trained keras model; should be the encoder returned from either \code{build_vae_standard_normal()} or \code{build_vae_normal_full_covariance}}
 
-\item{responses}{a set of binary responses, as used in training}
+\item{responses}{a \code{num_students} by \code{num_items} matrix of binary responses, as used in training}
 }
 \value{
-a list containing student ability estimates and the variance (or covariance matrix) of those estimates
+a list where the first entry contains student ability estimates and the second entry holds the variance (or covariance matrix) of those estimates
 }
 \description{
 Feed forward response sets through the encoder, which outputs student ability estimates
 }
 \examples{
+\donttest{
 data <- matrix(c(1,1,0,0,1,0,1,1,0,1,1,0), nrow = 3, ncol = 4)
 Q <- matrix(c(1,0,1,1,0,1,1,0), nrow = 2, ncol = 4)
 models <- build_vae_standard_normal(4, 2, Q, model_type = 2)
 encoder <- models[[1]]
-ability_parameter_estimates <- get_ability_parameter_estimates(encoder, data)
+ability_parameter_estimates_variances <- get_ability_parameter_estimates(encoder, data)
+student_ability_est <- ability_parameter_estimates_variances[[1]]
+}
 }

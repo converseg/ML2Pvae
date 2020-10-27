@@ -1,10 +1,10 @@
 #' Build a VAE that fits to a standard N(0,I) latent distribution with independent latent traits
 #'
-#' @param num_items the number of items on the assessment; also the number of nodes in the input/output layers of the VAE
-#' @param num_skills the number of skills being evaluated; also the size of the distribution learned by the VAE
+#' @param num_items an integer giving the number of items on the assessment; also the number of nodes in the input/output layers of the VAE
+#' @param num_skills an integer giving the number of skills being evaluated; also the dimensionality of the distribution learned by the VAE
 #' @param Q_matrix a binary, \code{num_skills} by \code{num_items} matrix relating the assessment items with skills
-#' @param model_type either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model
-#' @param enc_hid_arch a vector detailing the number an size of hidden layers in the encoder
+#' @param model_type either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model; if 1PL, then all decoder weights are fixed to be equal to one
+#' @param enc_hid_arch a vector detailing the size of hidden layers in the encoder; the number of hidden layers is determined by the length of this vector
 #' @param hid_enc_activations a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}
 #' @param output_activation a string specifying the activation function in the output of the decoder; the ML2P model always uses 'sigmoid'
 #' @param kl_weight an optional weight for the KL divergence term in the loss function
@@ -12,12 +12,14 @@
 #' @return returns three keras models: the encoder, decoder, and vae.
 #' @export
 #' @examples
+#' \donttest{
 #' Q <- matrix(c(1,0,1,1,0,1,1,0), nrow = 2, ncol = 4)
 #' models <- build_vae_standard_normal(4, 2, Q,
 #'           enc_hid_arch = c(6, 3), hid_enc_activation = c('sigmoid', 'relu'),
 #'           output_activation = 'tanh', kl_weight = 0.1)
 #' models <- build_vae_standard_normal(4, 2, Q)
 #' vae <- models[[3]]
+#' }
 build_vae_standard_normal <- function(num_items,
                                       num_skills,
                                       Q_matrix,

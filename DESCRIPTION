@@ -1,7 +1,7 @@
 Package: ML2Pvae
 Type: Package
 Title: Construct, Train, and Evaluate ML2P-VAE Models for Parameter Estimation in Item Response Theory
-Version: 0.1.0
+Version: 1.0
 Authors@R: person("Geoffrey", "Converse", email = "converseg@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-8764-9950"))
 Author: Geoffrey Converse [aut, cre]
 Maintainer: Geoffrey Converse <converseg@gmail.com>

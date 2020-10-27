@@ -17,15 +17,15 @@ build_vae_standard_normal(
 )
 }
 \arguments{
-\item{num_items}{the number of items on the assessment; also the number of nodes in the input/output layers of the VAE}
+\item{num_items}{an integer giving the number of items on the assessment; also the number of nodes in the input/output layers of the VAE}
 
-\item{num_skills}{the number of skills being evaluated; also the size of the distribution learned by the VAE}
+\item{num_skills}{an integer giving the number of skills being evaluated; also the dimensionality of the distribution learned by the VAE}
 
 \item{Q_matrix}{a binary, \code{num_skills} by \code{num_items} matrix relating the assessment items with skills}
 
-\item{model_type}{either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model}
+\item{model_type}{either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model; if 1PL, then all decoder weights are fixed to be equal to one}
 
-\item{enc_hid_arch}{a vector detailing the number an size of hidden layers in the encoder}
+\item{enc_hid_arch}{a vector detailing the size of hidden layers in the encoder; the number of hidden layers is determined by the length of this vector}
 
 \item{hid_enc_activations}{a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}}
 
@@ -42,10 +42,12 @@ returns three keras models: the encoder, decoder, and vae.
 Build a VAE that fits to a standard N(0,I) latent distribution with independent latent traits
 }
 \examples{
+\donttest{
 Q <- matrix(c(1,0,1,1,0,1,1,0), nrow = 2, ncol = 4)
 models <- build_vae_standard_normal(4, 2, Q,
           enc_hid_arch = c(6, 3), hid_enc_activation = c('sigmoid', 'relu'),
           output_activation = 'tanh', kl_weight = 0.1)
 models <- build_vae_standard_normal(4, 2, Q)
 vae <- models[[3]]
+}
 }
