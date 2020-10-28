@@ -1,7 +1,6 @@
 context("input")
 
 test_that("detect invalid Q-matrix", {
-  #must be binary and correct dimensions
   num_skills <- 2
   num_items <- 4
   Q1 <- matrix(c(1,0,1,1,0,0,1,1), nrow = 4, ncol = 2)
@@ -50,7 +49,7 @@ test_that("detect non-numeric architecture", {
                'The enc_hid_arch must be a numeric vector.')
   expect_error(validate_inputs(num_items, num_skills, Q, enc_hid_arch = enc_arch2),
                'The number of nodes in each hidden layer must be greater than or equal to 1.')
-  
+
 })
 
 test_that("detect invalid encoder architecture", {

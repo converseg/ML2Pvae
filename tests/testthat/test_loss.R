@@ -1,5 +1,6 @@
 context("KL loss")
 test_that("standard normal KL divergence is computed correctly", {
+  skip_on_cran()
   m1 <- tensorflow::tf$constant(c(0.25, -0.5), shape = c(1L,2L))
   lv1 <- tensorflow::tf$constant(c(-0.2, 0.1), shape = c(1L,2L))
   m2 <- tensorflow::tf$constant(c(0, -.25), shape = c(1L,2L))
@@ -16,6 +17,7 @@ test_that("standard normal KL divergence is computed correctly", {
 })
 
 test_that("full covariance KL divergence is computed correctly", {
+  skip_on_cran()
   target_m <- tensorflow::tf$constant(c(1,2), shape = c(1L,2L), dtype = 'float32')
   target_cov <- tensorflow::tf$constant(matrix(c(1, 0.25, 0.25, 1.5), nrow = 2, ncol = 2),
                                         shape = c(2L,2L), dtype = 'float32')

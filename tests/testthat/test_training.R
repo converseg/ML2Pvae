@@ -1,6 +1,7 @@
 context("training")
 
 test_that("standard normal vae can be fit to data", {
+  skip_on_cran()
   responses <- runif(52)
   responses[responses > 0.5] <- 1
   responses[responses <= 0.5] <- 0
@@ -21,6 +22,7 @@ test_that("standard normal vae can be fit to data", {
 })
 
 test_that("full covariance vae can be fit to data", {
+  skip_on_cran()
   responses <- runif(52)
   responses[responses > 0.5] <- 1
   responses[responses <= 0.5] <- 0
@@ -45,6 +47,7 @@ test_that("full covariance vae can be fit to data", {
 })
 
 test_that("1-parameter logistic model option makes all decoder weights = 1", {
+  skip_on_cran()
   responses <- runif(40)
   responses[responses > 0.5] <- 1
   responses[responses <= 0.5] <- 0
@@ -61,6 +64,7 @@ test_that("1-parameter logistic model option makes all decoder weights = 1", {
 })
 
 test_that("single-dimensional IRT estimation works", {
+  skip_on_cran()
   responses <- runif(30)
   responses[responses > 0.5] <- 1
   responses[responses <= 0.5] <- 0
