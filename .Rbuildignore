@@ -1,3 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.Rprofile$
+^\.Rhistory$
+^.*\.git$
+^.*\.gitignore$
+^vignettes/sweave$
