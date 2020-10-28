@@ -8,3 +8,4 @@
 ^README.Rmd$
 ^README.md$
 ^README_files$
+^cran-comments.md$
