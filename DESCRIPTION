@@ -18,8 +18,10 @@ Imports:
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,
-    rmarkdown
-VignetteBuilder: knitr
+    rmarkdown,
+    testthat,
+    R.rsp
+VignetteBuilder: R.rsp
 Depends: 
     R (>= 3.6)
 URL:

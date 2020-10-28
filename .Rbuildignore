@@ -5,3 +5,6 @@
 ^.*\.git$
 ^.*\.gitignore$
 ^vignettes/sweave$
+^README.Rmd$
+^README.md$
+^README_files$
