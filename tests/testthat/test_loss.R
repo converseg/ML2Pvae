@@ -11,7 +11,7 @@ test_that("standard normal KL divergence is computed correctly", {
   dummy_encoder <- function(input){
     c(means, log_vars)
   }
-  kl_loss <- vae_loss_standard_normal(dummy_encoder, 1, 3)(placeholder, placeholder)
+  kl_loss <- vae_loss_independent(dummy_encoder, 1, 3)(placeholder, placeholder)
   kl_value <- tensorflow::tf$get_static_value(kl_loss)
   expect_equal(kl_value, 0.5 * (0.168201 + 0.2895504), tolerance = 1e-5)
 })
@@ -35,7 +35,7 @@ test_that("full covariance KL divergence is computed correctly", {
   dummy_encoder <- function(input){
     c(sample_m, sample_log_chol)
   }
-  kl_loss <- vae_loss_normal_full_covariance(dummy_encoder,
+  kl_loss <- vae_loss_correlated(dummy_encoder,
                                              target_inv, target_det, target_m, 1, 3)(placeholder, placeholder)
   kl_value <- tensorflow::tf$get_static_value(kl_loss)
   expect_equal(kl_value, 0.5 *(0.1390 + 2.133272), tolerance = 1e-4)

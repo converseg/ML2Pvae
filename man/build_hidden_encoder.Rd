@@ -2,7 +2,7 @@
 % Please edit documentation in R/build_hidden_encoder.R
 \name{build_hidden_encoder}
 \alias{build_hidden_encoder}
-\title{Build the encoder for your VAE}
+\title{Build the encoder for a VAE}
 \usage{
 build_hidden_encoder(
   input_size,
@@ -11,9 +11,9 @@ build_hidden_encoder(
 )
 }
 \arguments{
-\item{input_size}{an integer}
+\item{input_size}{an integer representing the number of items}
 
-\item{layers}{a list of integers}
+\item{layers}{a list of integers giving the size of each hidden layer}
 
 \item{activations}{a list of strings, the same length as layers}
 }
@@ -21,5 +21,5 @@ build_hidden_encoder(
 two tensors: the input layer to the VAE and the last hidden layer of the encoder
 }
 \description{
-Build the encoder for your VAE
+Build the encoder for a VAE
 }

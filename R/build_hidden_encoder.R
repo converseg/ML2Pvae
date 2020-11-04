@@ -1,7 +1,7 @@
-#' Build the encoder for your VAE
+#' Build the encoder for a VAE
 #'
-#' @param input_size an integer
-#' @param layers a list of integers
+#' @param input_size an integer representing the number of items
+#' @param layers a list of integers giving the size of each hidden layer
 #' @param activations a list of strings, the same length as layers
 #' @return two tensors: the input layer to the VAE and the last hidden layer of the encoder
 build_hidden_encoder <- function(input_size,

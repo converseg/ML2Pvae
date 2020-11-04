@@ -1,7 +1,7 @@
 #' A reparameterization in order to sample from the learned standard normal distribution of the VAE
 #'
 #' @param arg a layer of tensors representing the mean and variance
-sampling_standard_normal <- function(arg){
+sampling_independent <- function(arg){
   num_skills <- keras::k_int_shape(arg)[[2]] / 2
   z_mean <- arg[, 1:num_skills]
   z_log_var <- arg[, (num_skills + 1):(2 * num_skills)]
@@ -16,7 +16,7 @@ sampling_standard_normal <- function(arg){
 #' A reparameterization in order to sample from the learned multivariate normal distribution of the VAE
 #'
 #' @param arg a layer of tensors representing the mean and log cholesky transform of the covariance matrix
-sampling_normal_full_covariance <- function(arg){
+sampling_correlated <- function(arg){
   num_skills <- as.integer(-1.5 + sqrt(2 * keras::k_int_shape(arg)[[2]] + 9/4))
   z_mean <- arg[, 1:(num_skills)]
   b_size <- keras::k_int_shape(z_mean)[[1]]

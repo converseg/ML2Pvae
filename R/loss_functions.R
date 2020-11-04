@@ -4,7 +4,7 @@
 #' @param kl_weight weight for the KL divergence term
 #' @param rec_dim the number of nodes in the input/output of the VAE
 #' @return returns a function whose parameters match keras loss format
-vae_loss_standard_normal <- function(encoder, kl_weight, rec_dim){
+vae_loss_independent <- function(encoder, kl_weight, rec_dim){
   loss <- function(input, output){
     vals <- encoder(input)
     z_mean_val <- vals[[1]]
@@ -29,12 +29,12 @@ vae_loss_standard_normal <- function(encoder, kl_weight, rec_dim){
 #' @param kl_weight weight for the KL divergence term
 #' @param rec_dim the number of nodes in the input/output of the VAE
 #' @return returns a function whose parameters match keras loss format
-vae_loss_normal_full_covariance <- function(encoder,
-                                            inv_skill_cov,
-                                            det_skill_cov,
-                                            skill_mean,
-                                            kl_weight,
-                                            rec_dim){
+vae_loss_correlated <- function(encoder,
+                                inv_skill_cov,
+                                det_skill_cov,
+                                skill_mean,
+                                kl_weight,
+                                rec_dim){
   loss <- function(y_true, y_pred){
     vals <- encoder(y_true)
     z_mean <- vals[[1]]

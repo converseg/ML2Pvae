@@ -1,13 +1,13 @@
 #' Get trainable variables from the decoder, which serve as item parameter estimates.
 #'
-#' @param decoder a trained keras model; can either be the decoder or vae returned from \code{build_vae_standard_normal()} or \code{build_vae_normal_full_covariance}
+#' @param decoder a trained keras model; can either be the decoder or vae returned from \code{build_vae_independent()} or \code{build_vae_correlated}
 #' @param model_type either 1 or 2, specifying a 1 parameter (1PL) or 2 parameter (2PL) model; if 1PL, then only the difficulty parameter estimates (output layer bias) will be returned; if 2PL, then the discrimination parameter estimates (output layer weights) will also be returned
 #' @return a list which contains item parameter estimates; the length of this list is equal to model_type - the first entry in the list holds the difficulty parameter estimates, and the second entry (if 2PL) contains discrimination parameter estimates
 #' @export
 #' @examples
 #' \donttest{
 #' Q <- matrix(c(1,0,1,1,0,1,1,0), nrow = 2, ncol = 4)
-#' models <- build_vae_standard_normal(4, 2, Q, model_type = 2)
+#' models <- build_vae_independent(4, 2, Q, model_type = 2)
 #' decoder <- models[[2]]
 #' item_parameter_estimates <- get_item_parameter_estimates(decoder, model_type = 2)
 #' difficulty_est <- item_parameter_estimates[[1]]
@@ -28,7 +28,7 @@ get_item_parameter_estimates <- function(decoder, model_type = 2){
 
 #' Feed forward response sets through the encoder, which outputs student ability estimates
 #'
-#' @param encoder a trained keras model; should be the encoder returned from either \code{build_vae_standard_normal()} or \code{build_vae_normal_full_covariance}
+#' @param encoder a trained keras model; should be the encoder returned from either \code{build_vae_independent()} or \code{build_vae_correlated}
 #' @param responses a \code{num_students} by \code{num_items} matrix of binary responses, as used in training
 #' @return a list where the first entry contains student ability estimates and the second entry holds the variance (or covariance matrix) of those estimates
 #' @export
@@ -36,7 +36,7 @@ get_item_parameter_estimates <- function(decoder, model_type = 2){
 #' \donttest{
 #' data <- matrix(c(1,1,0,0,1,0,1,1,0,1,1,0), nrow = 3, ncol = 4)
 #' Q <- matrix(c(1,0,1,1,0,1,1,0), nrow = 2, ncol = 4)
-#' models <- build_vae_standard_normal(4, 2, Q, model_type = 2)
+#' models <- build_vae_independent(4, 2, Q, model_type = 2)
 #' encoder <- models[[1]]
 #' ability_parameter_estimates_variances <- get_ability_parameter_estimates(encoder, data)
 #' student_ability_est <- ability_parameter_estimates_variances[[1]]
