@@ -42,7 +42,7 @@ Q <- as.matrix(q_matrix)
 
 First set a few hyper-parameters to build the neural network. Note that
 \\textbf{num\_items} and \\textbf{num\_skills} are fixed by the data
-set. The core function here is \\textbf{build\_vae\_standard\_normal()},
+set. The core function here is \\textbf{build\_vae\_independent()},
 which constructs a modified neural network which can be used for
 parameter estimation.
 
@@ -56,7 +56,7 @@ enc_act <- c('relu', 'tanh')
 out_act <- 'sigmoid'
 kl <- 1
 
-models <- build_vae_standard_normal(
+models <- build_vae_independent(
   num_items,
   num_skills,
   Q,
