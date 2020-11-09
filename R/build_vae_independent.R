@@ -8,6 +8,7 @@
 #' @param hid_enc_activations a vector specifying the activation function in each hidden layer in the encoder; must be the same length as \code{enc_hid_arch}
 #' @param output_activation a string specifying the activation function in the output of the decoder; the ML2P model always uses 'sigmoid'
 #' @param kl_weight an optional weight for the KL divergence term in the loss function
+#' @param l1_penalty the weight on a L1-regularization term on the decoder weights with default 0 (i.e. no penalty) - an L1 penalty can be useful if the Q-matrix is unknown
 #' @param learning_rate an optional parameter for the adam optimizer
 #' @return returns three keras models: the encoder, decoder, and vae.
 #' @export
@@ -28,6 +29,7 @@ build_vae_independent <- function(num_items,
                                   hid_enc_activations = rep('sigmoid', length(enc_hid_arch)),
                                   output_activation = 'sigmoid',
                                   kl_weight = 1,
+                                  l1_penalty = 0,
                                   learning_rate = 0.001){
   validate_inputs(num_items,
                   num_skills,
@@ -59,6 +61,7 @@ build_vae_independent <- function(num_items,
                             units = num_items,
                             activation = output_activation,
                             kernel_constraint = weight_constraint(Q_matrix),
+                            kernel_regularizer = keras::regularizer_l1(l = l1_penalty),
                             name = 'vae_out')
   decoder <- keras::keras_model(latent_inputs, out)
   output <- decoder(encoder(input)[3])

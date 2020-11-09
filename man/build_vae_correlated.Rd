@@ -15,6 +15,7 @@ build_vae_correlated(
   hid_enc_activations = rep("sigmoid", length(enc_hid_arch)),
   output_activation = "sigmoid",
   kl_weight = 1,
+  l1_penalty = 0,
   learning_rate = 0.001
 )
 }
@@ -38,6 +39,8 @@ build_vae_correlated(
 \item{output_activation}{a string specifying the activation function in the output of the decoder; the ML2P model always used 'sigmoid'}
 
 \item{kl_weight}{an optional weight for the KL divergence term in the loss function}
+
+\item{l1_penalty}{the weight on a L1-regularization term on the decoder weights with default 0 (i.e. no penalty) - an L1 penalty can be useful if the Q-matrix is unknown}
 
 \item{learning_rate}{an optional parameter for the adam optimizer}
 }
