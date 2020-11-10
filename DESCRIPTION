@@ -2,11 +2,15 @@ Package: ML2Pvae
 Type: Package
 Title: Variational Autoencoder Models for IRT Parameter Estimation
 Version: 1.0
-Authors@R: person("Geoffrey", "Converse", email = "converseg@gmail.com", role = c("aut", "cre"))
+Authors@R: c(
+    person("Geoffrey", "Converse", email = "converseg@gmail.com", role = c("aut", "cre", "cph")),
+    person("Suely", "Oliveira", email = "suely-oliveira@uiowa.edu", role = c("ctb", "ths")),
+    person("Mariana", "Curi", email = "mcuri@icmc.usp.br", role = c("ctb"))
+    )
 Author: Geoffrey Converse [aut, cre]
 Maintainer: Geoffrey Converse <converseg@gmail.com>
-Description: Based on the work of Curi, Converse, Hajewski, and Oliveira (2019) <doi:10.1109/IJCNN.2019.8852333>. This package provides easy-to-use functions which create a variational autoencoder (VAE) to be used for parameter estimation in Item Response Theory (IRT) - namely the Multidimensional Logistic 2-Parameter (ML2P) model. To use a neural network as such, nontrivial modifications to the architecture must be made, such as restricting the nonzero weights in the decoder according to some binary matrix Q. The functions in this package allow straight-forward construction, training, and evaluation so that minimal knowledge of Tensorflow or Keras is required. 
-Note: The developer version of Keras should be used, rather than the CRAN version. The latter will cause tests to fail on their initial run, but work on subsequent tries. To avoid this, use devtools::install_github("rstudio/keras"). The user also must have an installation of Python 3.
+Description: Based on the work of Curi, Converse, Hajewski, and Oliveira (2019) <doi:10.1109/IJCNN.2019.8852333>. This package provides easy-to-use functions which create a variational autoencoder (VAE) to be used for parameter estimation in Item Response Theory (IRT) - namely the Multidimensional Logistic 2-Parameter (ML2P) model. To use a neural network as such, nontrivial modifications to the architecture must be made, such as restricting the nonzero weights in the decoder according to some binary matrix Q. The functions in this package allow for straight-forward construction, training, and evaluation so that minimal knowledge of 'tensorflow' or 'keras' is required. 
+Note: The developer version of 'keras' should be used, rather than the CRAN version. The latter will cause tests to fail on an initial run, but work on subsequent tries. To avoid this, use devtools::install_github("rstudio/keras"). The user also must have an installation of 'Python 3'.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
