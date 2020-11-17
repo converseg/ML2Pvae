@@ -7,9 +7,9 @@
 
 # ML2Pvae
 
-This package allows for building, training, and evaluating ML2P-VAE
-parameter estimation models in Item Response Theory (IRT). These methods
-are based off of the work of Curi et
+This R package allows for constructing, training, and evaluating
+ML2P-VAE parameter estimation models in Item Response Theory (IRT).
+These methods are based off of the work of Curi et
 al. (<https://ieeexplore.ieee.org/document/8852333>). Specific
 modifications are made to the VAE architecture which allow for
 interpretation of some of the trainable weights/biases, as well as the
@@ -17,12 +17,14 @@ values of a hidden layer of the neural network.
 
 ## Installation
 
-ML2Pvae can be installed using with the command
+The ML2Pvae package is hosted on CRAN and can be downloaded by running
 
-``` r
-#> library(devtools)
-#> install_github("converseg/ML2Pvae")
-```
+    install.packages("ML2Pvae")}
+
+Alsternatively, ML2Pvae can be installed from GitHub using the command
+
+    library(devtools)
+    install_github("converseg/ML2Pvae")
 
 ## Example
 
@@ -41,10 +43,9 @@ Q <- as.matrix(q_matrix)
 ```
 
 First set a few hyper-parameters to build the neural network. Note that
-\\textbf{num\_items} and \\textbf{num\_skills} are fixed by the data
-set. The core function here is \\textbf{build\_vae\_independent()},
-which constructs a modified neural network which can be used for
-parameter estimation.
+`num_items` and `num_skills` are fixed by the data set. The core
+function here is `build_vae_independent()`, which constructs a modified
+neural network which can be used for parameter estimation.
 
 ``` r
 # Model parameters
@@ -119,7 +120,7 @@ diff_true <- as.matrix(diff_true)
 theta_true<- as.matrix(theta_true)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-8-1.png" width="100%" />
+<img src="README_files/figure-gfm/unnamed-chunk-7-1.png" width="100%" />
 
 This was a very basic example, and results can be improved by
 fine-tuning the network architecture.
