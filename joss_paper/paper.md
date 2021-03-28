@@ -10,13 +10,16 @@ authors:
     orcid: 0000-0001-8764-9950
     affiliation: 1
   - name: Mariana Curi
+    orcid: 0000-0002-7651-1064
     affiliation: 2
   - name: Suely Oliveira
-  - affiliation: 1
+    orcid: 0000-0003-4987-5353
+    affiliation: 1
 affiliations:
   - name: University of Iowa
     index: 1
   - name: University of São Paulo
+    index: 2
 date: 28 March 2021
 bibliography: paper.bib
 
@@ -26,7 +29,7 @@ bibliography: paper.bib
 
 In educational measurement, Item Response Theory (IRT) aims to model the probability of a student answering a question (item) correctly as a function of the student's continuous latent ability (skill) values, along with parameters associated with the item itself such as the question difficulty. For example, the basic arithmetic question $3 \times 4 + 2$ requires skills "multiplication" and "addition". A popular IRT model, and the focus of the software `ML2Pvae`, is the Multidimensional Logistic 2-Parameter (ML2P) model, which gives the probability of student $j$ answering item $i$ correctly as
 \begin{equation}\label{eq:ml2p}
-P(x_{ij} = 1 | \vec \theta_j; \vec a_i, b_i) = \frac{1}{1 + \exp\left(-\sum_{k=1}^K a_{ik} \cdot \theta_{jk} + b_i\right)}
+P(x_{ij} = 1 | \vec \theta_j; \vec a_i, b_i) = \frac{1}{1 + \exp\left(-\sum_{k=1}^K a_{ik} \theta_{jk} + b_i\right)}
 \end{equation}
 where $\vec \theta_j =\{\theta_{jk}\}_{k=1}^K$ quantifies student $j$'s $K$ latent abilities, $a_{ik}$ determines \textit{how much} of skill $k$ is required for item $i$, and $b_i$ gives the difficulty of item $i$.
 
@@ -34,43 +37,13 @@ In large-scale assessments (e.g. standardized testing), it is a common goal for 
 
 # Statement of need
 
-Sofware like `mirt` [@mirt] is popular for estimating IRT parameters, but due to the curse of dimensionality, such methods experience difficulty or even infeasibility on assessments where the latent ability dimension is large, i.e. a large number ($>8$) of distinct latent skills are under assessment. Recent work has explored the use of a modified variational autoencoder (VAE), a type of neural network, to estimate parameters [@Curi:2019]. Further extensions generalize ML2P-VAE method to correlated latent abilities and directly compare the method with popular `mirt` models [@Converse:2021].
+Sofware like `mirt` [@mirt] is popular for estimating IRT parameters, but due to the curse of dimensionality, such methods experience difficulty or are infeasible on assessments where the latent ability dimension is large, i.e. a large number ($>8$) of distinct latent skills are under assessment. Recent work has explored the use of a modified variational autoencoder (VAE), a type of neural network, to estimate parameters [@Curi:2019]. This method, ML2P-VAE, does not require numerical integration and thus does not have trouble with high-dimensional data. Further extensions generalize ML2P-VAE method to correlated latent abilities [@Converse:2021] and modify the method to fit an exploratory setting [@Urban:2020].
 
-The `ML2Pvae` package for `R` [@R] provides IRT practitioners with easy-to-use functions construct, train, and evaluate VAE models for parameter estimation without requiring background knowledge of neural networks or TensorFlow [@tensorflow]. Additionall, `ML2Pvae` also includes the capability to fit a VAE to a more general multivariate Gaussian latent distribution with non-identity covariance matrix. This novel neural network architecture implementation could be useful to researchers in other applications outside of educational measurement.
+The `ML2Pvae` package for R [@R] provides IRT practitioners with easy-to-use functions construct, train, and evaluate VAE models for parameter estimation without requiring background knowledge of neural networks or TensorFlow [@tensorflow]. Additionally, `ML2Pvae` also includes the capability to fit a VAE to a more general multivariate Gaussian latent distribution with non-identity covariance matrix. This novel neural network architecture implementation could be useful to researchers in other applications outside of educational measurement.
 
-<!--- Description of how this software compares to other commonly-used packages in the research area -->
+Source code and code examples for the R package `ML2Pvae` [@ml2pvae_software] can be found at [https://github.com/converseg/ML2Pvae](https://github.com/converseg/ML2Pvae). `ML2Pvae` is also avialable on CRAN and can be installed directly in R via the command `install.packages('ML2Pvae')`.
 
-<!--- Mentions of ongoing research projects using the software or recent shcolarly publications enabled by it -->
-
-# Implementation
-
-The correlated VAE implementation is worth explaining a bit here
-
-<!---
-# Mathematics
-This isn't an actual section. Equations use inline dollar signs like this $x+1$.
-
-Use double-dollar signs for self-standing equations:
-
-$$ P(u_{ij} = 1) = f(\theta)$$
-
-Or can use LaTeX
-\begin{equation}\label{eq:my_eq}
-f(x) = x^2
-\end{equation}
-
-
-# Figures
-
-Include like this:
-![Caption for figure.\label{fig:my_fig}](figure.png){ width=70% }
-and referenced with \autoref{fig:my_fig}.
-
--->
 
 
 # References
-<!---
-List of key references including a link to the software archive
--->
 
