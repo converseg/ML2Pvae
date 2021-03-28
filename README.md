@@ -21,10 +21,13 @@ The ML2Pvae package is hosted on CRAN and can be downloaded by running
 
     install.packages("ML2Pvae")}
 
-Alsternatively, ML2Pvae can be installed from GitHub using the command
+Alternatively, ML2Pvae can be installed from GitHub using the command
 
     library(devtools)
     install_github("converseg/ML2Pvae")
+
+Note that ML2Pvae requires an installation of Python 3, along with the
+Python libraries ‘keras’, ‘tensorflow’, and ‘tensorflow-probability’.
 
 ## Example
 
@@ -36,6 +39,7 @@ examples found in the “vignettes” directory.
 
 ``` r
 library(ML2Pvae)
+#> Warning: package 'ML2Pvae' was built under R version 3.6.3
 
 # Load sample data - included in package
 data <- as.matrix(responses)
