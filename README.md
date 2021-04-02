@@ -38,6 +38,7 @@ examples found in the “vignettes” directory.
 
 ``` r
 library(ML2Pvae)
+#> Warning: package 'ML2Pvae' was built under R version 3.6.3
 
 # Load sample data - included in package
 data <- as.matrix(responses)
