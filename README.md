@@ -26,8 +26,7 @@ Alternatively, ML2Pvae can be installed from GitHub using the command
     library(devtools)
     install_github("converseg/ML2Pvae")
 
-Note that ML2Pvae requires an installation of Python 3, along with the
-Python libraries ‘keras’, ‘tensorflow’, and ‘tensorflow-probability’.
+Note that ML2Pvae requires an installation of Python 3, along with the Python libraries ‘keras’, ‘tensorflow’, and ‘tensorflow-probability’.
 
 ## Example
 
